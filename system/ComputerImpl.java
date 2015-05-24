@@ -12,6 +12,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	private long startTime;
 	private long endTime;
 	private int workerNo;
+	private int jobId;
 	public static final String MULTITHREAD_ON = "MT_ON";
 	public static final String MULTITHREAD_OFF = "MT_OFF";
 	public ComputerImpl(boolean multithreadFlag) throws RemoteException {
@@ -37,7 +38,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 				computer = new ComputerImpl(false);
 				System.out.println("Multithread is off");
 			}
-			space.register(computer);
+			computer.setJobId(space.register(computer));
 			
 		} catch (Exception e) {
 			System.out.println("ComputeEngine Exception");
@@ -67,5 +68,10 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	@Override
 	synchronized public void decrementWorkerNo() throws RemoteException {
 		this.workerNo --;
+	}
+
+	@Override
+	public void setJobId(int jobId) throws RemoteException {
+		this.jobId = jobId;
 	}
 }

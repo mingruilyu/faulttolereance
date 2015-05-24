@@ -20,7 +20,8 @@ public abstract class Task<V> implements Serializable {
 	protected long parentId;
 	protected List<Argument<V>> argList;
 	protected int missingArgCount;
-
+	protected int jobId;
+	
 	public static Long t1 = new Long(0);
 	protected static final int WAITING_ANSWER = -1;
 	public static final int NO_PARENT = -1;
@@ -95,14 +96,14 @@ public abstract class Task<V> implements Serializable {
 	public void feedback(Argument result, Space space) throws RemoteException {
 		if (this.parentId == NO_PARENT)
 			try {
-				space.setupResult(result.getArg());
+				space.setupResult(result.getArg(), this.jobId);
 				System.out.println("Critical path Time: " + result.getTime() / 1000);
 				System.out.println("T1: " + t1 / 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		else
-			space.insertArg(result, this.parentId, this.slotIndex);
+			space.insertArg(result, this.parentId, this.slotIndex, this.jobId);
 	}
 
 	/**

@@ -16,7 +16,7 @@ public class JobEuclideanTsp implements Job<List<Integer>>, Serializable{
 		this.n = n;
 	}
 	@Override
-	public Task<List<Integer>> toTask(Space space) {
+	public Task<List<Integer>> toTask() {
 		List<Integer> prevCities = new ArrayList<Integer> ();
 		double restDistance = 0;
 		// restDistance includes the sum of two least edges for 

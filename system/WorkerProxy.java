@@ -31,9 +31,9 @@ public class WorkerProxy extends Thread {
 				e.printStackTrace();
 				try {
 					this.space.issueTask(task);
-					this.computer.decrementWorkerNo();
-					if(this.computer.getWorkerNo() == 0)
-						this.space.deleteComputerProxy(this.computerProxyId);
+					//this.computer.decrementWorkerNo();
+					//if(this.computer.getWorkerNo() == 0)
+						//this.space.deleteComputerProxy(this.computerProxyId);
 					break;
 				} catch (RemoteException e1) {
 					e1.printStackTrace();

@@ -27,7 +27,7 @@ public interface Space extends Remote {
 	 *             occupied, and the thread is interrupted, either before or
 	 *             during the activity.
 	 */
-	<T> T take() throws RemoteException, InterruptedException;
+	<T> T take(int jobId) throws RemoteException, InterruptedException;
 
 	/**
 	 * Register the computer to the space.
@@ -38,7 +38,7 @@ public interface Space extends Remote {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	void register(Computer computer) throws RemoteException;
+	int register(Computer computer) throws RemoteException;
 
 	/**
 	 * Put the generated new task to the task queue.
@@ -49,7 +49,7 @@ public interface Space extends Remote {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	<T> void issueTask(Task<T> task) throws RemoteException;
+	<T> void issueTask(Task<T> task, int jobId) throws RemoteException;
 
 	/**
 	 * Put the successor to the waiting queue.
@@ -61,7 +61,7 @@ public interface Space extends Remote {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	<T> void suspendTask(Task<T> task, long id) throws RemoteException;
+	<T> void suspendTask(Task<T> task, long id, int jobId) throws RemoteException;
 
 	/**
 	 * Insert the argument to the corresponding slot in the closure.
@@ -76,7 +76,7 @@ public interface Space extends Remote {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	<T> void insertArg(Argument<T> arg, long id, int slotIndex) throws RemoteException;
+	<T> void insertArg(Argument<T> arg, long id, int slotIndex, int jobId) throws RemoteException;
 
 	/**
 	 * Remove and return the task from the task queue.
@@ -90,7 +90,7 @@ public interface Space extends Remote {
 	 *             occupied, and the thread is interrupted, either before or
 	 *             during the activity.
 	 */
-	<T> Task<T> fetchTask() throws RemoteException, InterruptedException;
+	<T> Task<T> fetchTask(int jobId) throws RemoteException, InterruptedException;
 
 	/**
 	 * Put the final result to the root task into the result
@@ -105,7 +105,7 @@ public interface Space extends Remote {
 	 *             occupied, and the thread is interrupted, either before or
 	 *             during the activity.
 	 */
-	<T> void setupResult(T result) throws RemoteException, InterruptedException;
+	<T> void setupResult(T result, int jobId) throws RemoteException, InterruptedException;
 
 	/**
 	 * Put the root task into the task queue.
@@ -118,11 +118,19 @@ public interface Space extends Remote {
 	 *             occupied, and the thread is interrupted, either before or
 	 *             during the activity.
 	 */
-	<T> void startJob(Job<T> job) throws RemoteException, InterruptedException;
+	<T> void startJob(int jobId) throws RemoteException, InterruptedException;
 	
-	public long getTaskId() throws RemoteException;
+	public long getTaskId(int jobId) throws RemoteException;
 	
-	public Double getShared() throws RemoteException;
+	public Double getShared(int jobId) throws RemoteException;
 	
-	public void putShared(Double shared) throws RemoteException;
+	public void putShared(Double shared, int jobId) throws RemoteException;
+	
+	public Space getMirror() throws RemoteException;
+	
+	public int prepareJob(Job job) throws RemoteException;
+	
+	public void resumeJob(int jobId) throws RemoteException;
+	
+	public void addMirror(Space space) throws RemoteException;
 }

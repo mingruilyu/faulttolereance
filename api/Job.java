@@ -9,6 +9,5 @@ package api;
  *            the return type of the task
  */
 public interface Job<T> {
-
-	public Task<T> toTask(Space space);
+	public Task<T> toTask();
 }

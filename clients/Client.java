@@ -26,7 +26,9 @@ public class Client<T> extends JFrame {
 	protected T taskReturnValue;
 	private long clientStartTime;
 	protected Space space;
+	protected Space mirrorSpace;
 	private Job<T> job;
+	private int jobId;
 	public Client(final String title, final String domainName, final Job<T> job) 
 			throws RemoteException, NotBoundException,
 			MalformedURLException {
@@ -57,14 +59,24 @@ public class Client<T> extends JFrame {
 		setVisible(true);
 	}
 
-	public T runTask() throws RemoteException {
+	public T runTask(){
 		final long taskStartTime = System.nanoTime();
 		T value = null;
 		try {
-			this.space.startJob(this.job);
-			value = this.space.take();
+			this.mirrorSpace = this.space.getMirror();
+			this.jobId = this.space.prepareJob(this.job);
+			this.space.startJob(this.jobId);
+			value = this.space.take(this.jobId);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		} catch (RemoteException e) {
+			this.space = this.mirrorSpace;
+			try {
+				this.space.resumeJob(this.jobId);
+				value = this.space.take(this.jobId);
+			} catch (RemoteException | InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
 
 		final long taskRunTime = (System.nanoTime() - taskStartTime) / 1000000;
