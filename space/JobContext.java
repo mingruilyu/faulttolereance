@@ -27,7 +27,7 @@ public class JobContext implements Serializable {
 	private Job job;
 	private int jobId;
 	private SpaceImpl space;
-	
+	private Object lock;
 	public static final long serialVersionUID = 227L;
 	
 	public JobContext(SpaceImpl space) {
@@ -39,6 +39,7 @@ public class JobContext implements Serializable {
 		this.shared = (double) 100000;
 		this.space = space;
 		this.taskCounter = 0;
+		this.lock = new Object();
 	}
 	
 	public void setJob(Job job) {
@@ -51,18 +52,30 @@ public class JobContext implements Serializable {
 	
 	public void addComputer(Computer computer, int computerCount) {
 		this.computerList.put(computerCount, computer);
+		ComputerProxy computerProxy = new ComputerProxy(this.space, computer,
+				computerCount, jobId, this.lock);
+		computerProxy.startWorker();
 	}
 	
 	public <T> Task<T> fetchTask(boolean mode) throws InterruptedException  {
-		Task<T> task = this.readyQueue.getLast();
-		if(mode == SpaceImpl.MODE_SPACE)
-			this.shadow.put(task.taskId, task);
-		return this.readyQueue.takeLast();
+		synchronized (readyQueue) {
+			if(!this.readyQueue.isEmpty()){
+				Task<T> task = this.readyQueue.getLast();
+				if(mode == SpaceImpl.MODE_SPACE)
+					this.shadow.put(task.taskId, task);
+				return this.readyQueue.takeLast();
+			} 
+			return null;
+		}
+		
 	}
 	
 	public <T> void issueTask(Task<T> task) {
 		try {
 			this.readyQueue.put(task);
+			synchronized (lock) {
+				this.lock.notifyAll();	
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -92,11 +105,7 @@ public class JobContext implements Serializable {
 	}
 	
 	public <T> void startJob() {
-		try {
-			this.readyQueue.put(this.job.toTask(this.taskCounter ++));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}		
+		this.issueTask(this.job.toTask(this.taskCounter ++));		
 	}
 	
 	public <T> void suspendTask(Task<T> task, long taskId, boolean mode) {
@@ -135,7 +144,7 @@ public class JobContext implements Serializable {
 	void resumeJob() {
 		for(Integer computerId : this.computerList.keySet()) {
 			Computer computer = this.computerList.get(computerId);
-			ComputerProxy computerProxy = new ComputerProxy(this.space, computer, computerId, this.jobId);
+			ComputerProxy computerProxy = new ComputerProxy(this.space, computer, computerId, this.jobId, this.lock);
 			computerProxy.startWorker();
 		}
 	}

@@ -11,10 +11,13 @@ public class WorkerProxy extends Thread {
 	private Computer computer;
 	private int computerProxyId;
 	private int jobId;
-	public WorkerProxy(SpaceImpl space, Computer computer, int computerProxyId, int jobId) {
+	private Object lock;
+	public WorkerProxy(SpaceImpl space, Computer computer, int computerProxyId, int jobId, Object lock) {
+		this.space = space;
 		this.computer = computer;
 		this.computerProxyId = computerProxyId;
 		this.jobId = jobId;
+		this.lock = lock;
 	}
 	
 	@Override
@@ -26,8 +29,14 @@ public class WorkerProxy extends Thread {
 			Task task = null;
 			try {
 				task = this.space.fetchTask(this.jobId);
+				if(task == null){
+					synchronized (this.lock) {
+						this.lock.wait();
+						continue;	
+					}	
+				}
 				long time = this.computer.executeTask(task, this.space);
-				System.out.println("Task running time: " + time);
+//				System.out.println("Task running time: " + time);
 			} catch (RemoteException | InterruptedException e) {
 				e.printStackTrace();
 				try {

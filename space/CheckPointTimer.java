@@ -11,9 +11,6 @@ public class CheckPointTimer extends Timer{
 	
 	public CheckPointTimer(JobContext jobContext, Space mirror, int jobId) {
 		this.checkpointTask = new CheckPointTask(jobContext, mirror, jobId);
-	}
-	
-	public void scheduleCheckPoint() {
 		this.scheduleAtFixedRate(this.checkpointTask, 0, 1000);
 	}
 	
@@ -29,6 +26,7 @@ public class CheckPointTimer extends Timer{
 		
 		@Override
 		public void run() {
+			System.out.println("Checkpoint running!");
 			synchronized(this.jobContext.readyQueue) {
 				synchronized(this.jobContext.waitingQueue) {
 					synchronized(this.jobContext.shadow) {

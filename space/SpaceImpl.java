@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.Map;
 
 import system.Computer;
@@ -36,19 +37,19 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		this.computerCount = 0;
 		this.jobCount = 0;
 		this.mode = mode;
+		this.jobContextMap = new HashMap<Integer, JobContext>();
 		if(mode == this.MODE_SPACE) {
 			for(int i = 0; i < MAX_JOB_NO; i ++)
 				this.jobContextMap.put(i, new JobContext(this));
 		}
+		this.timerMap = new HashMap<Integer, CheckPointTimer>();
 	}
 
 	@Override
 	public int register(Computer computer) throws RemoteException {
 		int jobId = this.computerCount % MAX_JOB_NO;
-		ComputerProxy computerProxy = new ComputerProxy(this, computer, this.computerCount, jobId);
 		JobContext jobContext = this.jobContextMap.get(jobId);
 		jobContext.addComputer(computer, this.computerCount ++);
-		computerProxy.startWorker();
 		return jobId;
 	}
 

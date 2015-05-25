@@ -287,7 +287,7 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 					result = getMinCost(settledCities, permutation);
 					minCost = calculateCost(result);
 				} else {
-					System.out.println("Pruned!");
+//					System.out.println("Pruned!");
 					result = null;
 					minCost = Double.MAX_VALUE;
 				}
@@ -341,8 +341,8 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 				settledCity++;
 			}
 			long subtaskId = space.getTaskId(this.jobId);
-			space.issueTask(new TaskEuclideanTsp(this.jobId, subtaskId, parentId, settledCity, 
-												 i, n - 1, settledCities, this.total, 
+			space.issueTask(new TaskEuclideanTsp(this.jobId, subtaskId, parentId, i, settledCity, 
+												  n - 1, settledCities, this.total, 
 												 this.restDistance, this.partialDistance),
 							this.jobId);
 			settledCity++;
