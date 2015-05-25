@@ -10,10 +10,11 @@ public class WorkerProxy extends Thread {
 	private SpaceImpl space;
 	private Computer computer;
 	private int computerProxyId;
-	public WorkerProxy(SpaceImpl space, Computer computer, int computerProxyId) {
+	private int jobId;
+	public WorkerProxy(SpaceImpl space, Computer computer, int computerProxyId, int jobId) {
 		this.computer = computer;
-		this.space = space;
 		this.computerProxyId = computerProxyId;
+		this.jobId = jobId;
 	}
 	
 	@Override
@@ -24,13 +25,13 @@ public class WorkerProxy extends Thread {
 		while(this.running) {
 			Task task = null;
 			try {
-				task = this.space.fetchTask();
+				task = this.space.fetchTask(this.jobId);
 				long time = this.computer.executeTask(task, this.space);
 				System.out.println("Task running time: " + time);
 			} catch (RemoteException | InterruptedException e) {
 				e.printStackTrace();
 				try {
-					this.space.issueTask(task);
+					this.space.issueTask(task, this.jobId);
 					//this.computer.decrementWorkerNo();
 					//if(this.computer.getWorkerNo() == 0)
 						//this.space.deleteComputerProxy(this.computerProxyId);

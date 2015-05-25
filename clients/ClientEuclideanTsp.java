@@ -41,14 +41,14 @@ public class ClientEuclideanTsp extends Client<List<Integer>> {
 
 	public ClientEuclideanTsp(String serverDomain) throws RemoteException,
 			NotBoundException, MalformedURLException {
-		super("Euclidean TSP", serverDomain, new JobEuclideanTsp(13));
+		super("Euclidean TSP", serverDomain);
 	}
 
 	public static void main(String[] args) throws Exception {
 		System.setSecurityManager(new SecurityManager());
 		final ClientEuclideanTsp client = new ClientEuclideanTsp(args[0]);
 		client.begin();
-		final List<Integer> value = client.runTask();
+		final List<Integer> value = client.runJob(new JobEuclideanTsp(13));
 		System.out.println(value);
 		client.add(client.getLabel(value.toArray(new Integer[0])));
 		client.end();

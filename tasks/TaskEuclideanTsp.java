@@ -67,10 +67,10 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 	 * @param total
 	 *            the total of cities
 	 */
-	public TaskEuclideanTsp(int settledCity, long parentId, int slotIndex, 
+	public TaskEuclideanTsp(int jobId, long taskId, long parentId, int slotIndex, int settledCity, 
 							int n, List<Integer> prevCities, int total,
 							double restDistance, double partialDistance) {
-		super(parentId, slotIndex);
+		super(jobId, parentId, taskId, slotIndex);
 		this.settledCity = settledCity;
 		this.n = n;
 		this.total = total;
@@ -270,7 +270,7 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 	 */
 	@Override
 	public void run(Space space) throws RemoteException {
-		double upperbound = space.getShared();
+		double upperbound = space.getShared(this.jobId);
 		TspArgument tspArgument;
 		long time = 0;
 
@@ -306,7 +306,7 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 			if(result != null) {
 				double minCost = calculateCost(result);
 				if(minCost < upperbound) 
-					space.putShared(minCost);
+					space.putShared(minCost, this.jobId);
 			}
 			this.feedback(tspArgument, space);
 		} else {
@@ -319,9 +319,8 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 			// queue. 
 			
 			long start = System.nanoTime();
-			long parentId = space.getTaskId();
-			space.suspendTask(this, parentId);
-			this.spawn(space, parentId);
+			space.suspendTask(this, this.jobId);
+			this.spawn(space, this.taskId);
 			long end = System.nanoTime();
 			synchronized(t1) {
 				t1 += end - start;
@@ -341,8 +340,11 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 			while (set.contains(settledCity)) {
 				settledCity++;
 			}
-			space.issueTask(new TaskEuclideanTsp(settledCity, parentId, i, n - 1, settledCities, 
-												 total, this.restDistance, this.partialDistance));
+			long subtaskId = space.getTaskId(this.jobId);
+			space.issueTask(new TaskEuclideanTsp(this.jobId, subtaskId, parentId, settledCity, 
+												 i, n - 1, settledCities, this.total, 
+												 this.restDistance, this.partialDistance),
+							this.jobId);
 			settledCity++;
 		}
 	}

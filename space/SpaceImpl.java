@@ -6,13 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import system.Computer;
 import system.ComputerProxy;
@@ -23,38 +17,44 @@ import api.Task;
 
 public class SpaceImpl extends UnicastRemoteObject implements Space {
 	private Map<Integer, JobContext> jobContextMap;
-	private Map<Integer, JobContext> backupJobContextMap;
-	
 	private Space mirror;
+	
+	Map<Integer, CheckPointTimer> timerMap;
 	
 	private final static String RUNNABLE_ON = "SR_ON";
 	private final static String RUNNABLE_OFF = "SR_OFF";
 	private final static int MAX_JOB_NO = 2;
-	private final static String MODE_SPACE = "SPACE";
-	private final static String MODE_MIRROR = "MIRROR";
+	private final static String MODE_SPACE_STR = "SPACE";
+	private final static String MODE_MIRROR_STR = "MIRROR";
+	public final static boolean MODE_SPACE = true;
+	public final static boolean MODE_MIRROR = false;
+	private final boolean mode;
 	private int computerCount;
 	private int jobCount;
 	
-	public SpaceImpl()  throws RemoteException {
+	public SpaceImpl(boolean mode)  throws RemoteException {
 		this.computerCount = 0;
 		this.jobCount = 0;
-		for(int i = 0; i < MAX_JOB_NO; i ++)
-			jobContextMap.put(i, new JobContext());
+		this.mode = mode;
+		if(mode == this.MODE_SPACE) {
+			for(int i = 0; i < MAX_JOB_NO; i ++)
+				this.jobContextMap.put(i, new JobContext(this));
+		}
 	}
 
 	@Override
 	public int register(Computer computer) throws RemoteException {
-		ComputerProxy computerProxy = new ComputerProxy(this, computer, this.computerCount);
 		int jobId = this.computerCount % MAX_JOB_NO;
+		ComputerProxy computerProxy = new ComputerProxy(this, computer, this.computerCount, jobId);
 		JobContext jobContext = this.jobContextMap.get(jobId);
-		jobContext.addComputer(computerProxy, this.computerCount ++);
+		jobContext.addComputer(computer, this.computerCount ++);
 		computerProxy.startWorker();
 		return jobId;
 	}
 
 	@Override
 	public <T> Task<T> fetchTask(int jobId) throws RemoteException, InterruptedException {
-		return this.jobContextMap.get(jobId).fetchTask();
+		return this.jobContextMap.get(jobId).fetchTask(this.mode);
 	}
 	
 	/*synchronized public void deleteComputerProxy(int proxyId) {
@@ -65,15 +65,15 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		if(System.getSecurityManager() == null)
 			System.setSecurityManager(new SecurityManager());
 		try {
-			if(args[0].equals(SpaceImpl.MODE_MIRROR)) {
-				Space mirror = new SpaceImpl();
+			if(args[0].equals(SpaceImpl.MODE_MIRROR_STR)) {
+				Space mirror = new SpaceImpl(SpaceImpl.MODE_MIRROR);
 				String url = "rmi://" + args[1] + ":" + Space.PORT + "/"
 						+ Space.SERVICE_NAME;
 				Space space = (Space) Naming.lookup(url);
 				space.addMirror(mirror);
 				System.out.println("Mirror is set, ready for crash ...");
 			} else {
-				Space space = new SpaceImpl();
+				Space space = new SpaceImpl(SpaceImpl.MODE_SPACE);
 				Registry registry = LocateRegistry.createRegistry(Space.PORT);
 				registry.rebind(Space.SERVICE_NAME, space);
 				System.out.println("Space is on, waiting for connection ...");
@@ -108,12 +108,14 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public <T> void startJob(int jobId) throws RemoteException {
-		this.jobContextMap.get(jobId).startJob();		
+		JobContext jobContext = this.jobContextMap.get(jobId);
+		jobContext.startJob();
+		this.timerMap.put(jobId, new CheckPointTimer(jobContext, this.mirror, jobId));
 	}
 
 	@Override
-	public <T> void suspendTask(Task<T> task, long id, int jobId) throws RemoteException {
-		this.jobContextMap.get(jobId).suspendTask(task, id);
+	public <T> void suspendTask(Task<T> task, int jobId) throws RemoteException {
+		this.jobContextMap.get(jobId).suspendTask(task, task.taskId, this.mode);
 	}
 
 	@Override
@@ -135,7 +137,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	public void addMirror(Space mirror) throws RemoteException {
 		this.mirror = mirror;
 	}
-
+	
 	@Override
 	public Space getMirror() throws RemoteException {
 		return this.mirror;
@@ -144,12 +146,26 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	@Override
 	public int prepareJob(Job job) throws RemoteException {
 		int jobId = (this.jobCount ++) % MAX_JOB_NO;
+		job.setJobId(jobId);
 		this.jobContextMap.get(jobId).setJob(job);
 		return jobId;
 	}
 
 	@Override
+	public void checkPoint(JobContext jobContext, int jobId) throws RemoteException {
+		jobContext.removeDuplicate();
+		for(Long taskId : jobContext.shadow.keySet()) {
+			try {
+				jobContext.readyQueue.put(jobContext.shadow.remove(taskId));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		this.jobContextMap.put(jobId, jobContext);
+	}
+
+	@Override
 	public void resumeJob(int jobId) throws RemoteException {
-		
+		this.jobContextMap.get(jobId).resumeJob();
 	}
 }

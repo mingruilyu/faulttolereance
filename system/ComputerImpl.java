@@ -20,6 +20,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		if(multithreadFlag)
 			this.workerNo = Runtime.getRuntime().availableProcessors();
 		else this.workerNo = 1;
+		this.jobId = jobId;
 	}
 	
 	public static void main(String[] args) {
@@ -53,7 +54,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	}
 
 	@Override
-	public <T> long executeTask(Task<T> task, Space space) throws RemoteException {
+	public <T> long executeTask(Task<T> task, Space space) throws RemoteException{
 		this.startTime = System.nanoTime();
 		task.run(space);
 		this.endTime = System.nanoTime();

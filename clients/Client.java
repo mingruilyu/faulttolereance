@@ -27,9 +27,8 @@ public class Client<T> extends JFrame {
 	private long clientStartTime;
 	protected Space space;
 	protected Space mirrorSpace;
-	private Job<T> job;
 	private int jobId;
-	public Client(final String title, final String domainName, final Job<T> job) 
+	public Client(final String title, final String domainName) 
 			throws RemoteException, NotBoundException,
 			MalformedURLException {
 		setTitle(title);
@@ -38,7 +37,6 @@ public class Client<T> extends JFrame {
 		String url = "rmi://" + domainName + ":" + Space.PORT + "/"
 				+ Space.SERVICE_NAME;
 		this.space = (Space) Naming.lookup(url);
-		this.job = job;
 	}
 
 	public void begin() {
@@ -59,12 +57,12 @@ public class Client<T> extends JFrame {
 		setVisible(true);
 	}
 
-	public T runTask(){
+	public T runJob(Job<T> job){
 		final long taskStartTime = System.nanoTime();
 		T value = null;
 		try {
 			this.mirrorSpace = this.space.getMirror();
-			this.jobId = this.space.prepareJob(this.job);
+			this.jobId = this.space.prepareJob(job);
 			this.space.startJob(this.jobId);
 			value = this.space.take(this.jobId);
 		} catch (InterruptedException e) {
@@ -80,9 +78,7 @@ public class Client<T> extends JFrame {
 		}
 
 		final long taskRunTime = (System.nanoTime() - taskStartTime) / 1000000;
-		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
-				"Task {0}Task time: {1} ms.",
-				new Object[] {this.job, taskRunTime });
+		System.out.println("Job runtime = " + taskRunTime);
 		return value;
 	}
 }

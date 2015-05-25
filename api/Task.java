@@ -16,11 +16,13 @@ import java.util.concurrent.Callable;
  * @param <V>
  */
 public abstract class Task<V> implements Serializable {
-	protected int slotIndex;
-	protected long parentId;
+	public final int slotIndex;
+	public final long parentId;
+	public final long taskId;
+	public final int jobId;
+	
 	protected List<Argument<V>> argList;
 	protected int missingArgCount;
-	protected int jobId;
 	
 	public static Long t1 = new Long(0);
 	protected static final int WAITING_ANSWER = -1;
@@ -45,9 +47,11 @@ public abstract class Task<V> implements Serializable {
 	 * @param slotIndex
 	 *            the position where the missing argument belongs to.
 	 */
-	public Task(long parentId, int slotIndex) {
+	public Task(int jobId, long parentId, long taskId,  int slotIndex) {
+		this.taskId = taskId;
 		this.slotIndex = slotIndex;
 		this.parentId = parentId;
+		this.jobId = jobId;
 		this.argList = new ArrayList<Argument<V>>();
 	}
 
@@ -57,9 +61,9 @@ public abstract class Task<V> implements Serializable {
 	 * @param parentId
 	 *            the ID of the successor.
 	 */
-	public void setId(int parentId) {
-		this.parentId = parentId;
-	}
+//	public void setId(int parentId) {
+//		this.parentId = parentId;
+//	}
 
 	/**
 	 * Check whether the task is ready to be executed.

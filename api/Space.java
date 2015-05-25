@@ -4,6 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import space.JobContext;
 import system.Computer;
 
 /**
@@ -61,7 +62,7 @@ public interface Space extends Remote {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	<T> void suspendTask(Task<T> task, long id, int jobId) throws RemoteException;
+	<T> void suspendTask(Task<T> task, int jobId) throws RemoteException;
 
 	/**
 	 * Insert the argument to the corresponding slot in the closure.
@@ -130,7 +131,9 @@ public interface Space extends Remote {
 	
 	public int prepareJob(Job job) throws RemoteException;
 	
-	public void resumeJob(int jobId) throws RemoteException;
-	
 	public void addMirror(Space space) throws RemoteException;
+	
+	public void checkPoint(JobContext jobContext, int jobId) throws RemoteException;
+	
+	public void resumeJob(int jobId) throws RemoteException;
 }

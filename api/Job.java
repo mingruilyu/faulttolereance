@@ -9,5 +9,6 @@ package api;
  *            the return type of the task
  */
 public interface Job<T> {
-	public Task<T> toTask();
+	public Task<T> toTask(long taskId);
+	public void setJobId(int jobId);
 }

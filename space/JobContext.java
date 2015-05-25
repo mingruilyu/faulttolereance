@@ -1,6 +1,6 @@
 package space;
 
-import java.rmi.RemoteException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,28 +9,36 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import system.Computer;
 import system.ComputerProxy;
 import api.Argument;
 import api.Job;
+import api.Space;
 import api.Task;
 
-public class JobContext {
-	private BlockingDeque<Task> readyQueue;
-	private Map<Long, Task> waitingQueue;
-	private BlockingQueue resultQueue;
-	private BlockingQueue<Task> shadow;
+public class JobContext implements Serializable {
+	public final BlockingDeque<Task> readyQueue;
+	public final Map<Long, Task> waitingQueue;
+	public final Map<Long, Task> shadow;
+	public final BlockingQueue resultQueue;
 	private long taskCounter;
-	private Map<Integer, ComputerProxy> computerList;
+	private Map<Integer, Computer> computerList;
 	private Double shared;
 	private Job job;
+	private int jobId;
+	private SpaceImpl space;
 	
-	public JobContext() {
-		this.computerList = Collections.synchronizedMap(new HashMap<Integer, ComputerProxy>());
+	public static final long serialVersionUID = 227L;
+	
+	public JobContext(SpaceImpl space) {
+		this.computerList = Collections.synchronizedMap(new HashMap<Integer, Computer>());
 		this.readyQueue = new LinkedBlockingDeque<Task>();
 		this.waitingQueue = Collections.synchronizedMap(new HashMap<Long, Task>());
 		this.resultQueue = new LinkedBlockingQueue<Task>();
-		this.shadow = new LinkedBlockingQueue<Task>();
+		this.shadow = Collections.synchronizedMap(new HashMap<Long, Task>());
 		this.shared = (double) 100000;
+		this.space = space;
+		this.taskCounter = 0;
 	}
 	
 	public void setJob(Job job) {
@@ -41,11 +49,14 @@ public class JobContext {
 		this.job = job;
 	}
 	
-	public void addComputer(ComputerProxy computerProxy, int computerCount) {
-		this.computerList.put(computerCount, computerProxy);
+	public void addComputer(Computer computer, int computerCount) {
+		this.computerList.put(computerCount, computer);
 	}
 	
-	public <T> Task<T> fetchTask() throws InterruptedException  {
+	public <T> Task<T> fetchTask(boolean mode) throws InterruptedException  {
+		Task<T> task = this.readyQueue.getLast();
+		if(mode == SpaceImpl.MODE_SPACE)
+			this.shadow.put(task.taskId, task);
 		return this.readyQueue.takeLast();
 	}
 	
@@ -82,26 +93,50 @@ public class JobContext {
 	
 	public <T> void startJob() {
 		try {
-			this.readyQueue.put(this.job.toTask());
+			this.readyQueue.put(this.job.toTask(this.taskCounter ++));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}		
 	}
 	
-	public <T> void suspendTask(Task<T> task, long id) throws RemoteException {
-		this.waitingQueue.put(id, task);
+	public <T> void suspendTask(Task<T> task, long taskId, boolean mode) {
+		this.waitingQueue.put(taskId, task);
+		if(mode == SpaceImpl.MODE_SPACE)
+			this.shadow.remove(taskId, task);
 	}
 	
-	synchronized public long getTaskId() throws RemoteException {
+	synchronized public long getTaskId() {
 		return this.taskCounter ++;
 	}
 	
-	public Double getShared() throws RemoteException {
+	public Double getShared() {
 		return this.shared;
 	}
 	
-	synchronized public void putShared(Double shared) throws RemoteException {
+	synchronized public void putShared(Double shared) {
 		if(this.shared > shared)
 			this.shared = shared;
+	}
+	
+	void removeDuplicate() {
+		// remove the duplicate between ready queue and shadow
+		Task task = this.readyQueue.getLast();
+		if(this.shadow.containsKey(task.taskId))
+			this.shadow.remove(task.taskId);
+		// remove the duplicate between waiting queue and shadow
+		for(Long taskId : this.shadow.keySet()) {
+			if(this.waitingQueue.containsKey(taskId)) {
+				this.waitingQueue.remove(taskId);
+				break;
+			}
+		}
+	} 
+	
+	void resumeJob() {
+		for(Integer computerId : this.computerList.keySet()) {
+			Computer computer = this.computerList.get(computerId);
+			ComputerProxy computerProxy = new ComputerProxy(this.space, computer, computerId, this.jobId);
+			computerProxy.startWorker();
+		}
 	}
 }
