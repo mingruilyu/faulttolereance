@@ -63,6 +63,7 @@ public class Client<T> extends JFrame {
 		try {
 			this.mirrorSpace = this.space.getMirror();
 			this.jobId = this.space.prepareJob(job);
+			System.out.println("Space prepare job "+this.jobId);
 			this.space.startJob(this.jobId);
 			value = this.space.take(this.jobId);
 		} catch (InterruptedException e) {

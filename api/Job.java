@@ -11,4 +11,5 @@ package api;
 public interface Job<T> {
 	public Task<T> toTask(long taskId);
 	public void setJobId(int jobId);
+	public int getJobId();
 }

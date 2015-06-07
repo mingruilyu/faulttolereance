@@ -24,7 +24,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	
 	private final static String RUNNABLE_ON = "SR_ON";
 	private final static String RUNNABLE_OFF = "SR_OFF";
-	private final static int MAX_JOB_NO = 2;
+	final static int MAX_JOB_NO = 2;
 	private final static String MODE_SPACE_STR = "SPACE";
 	private final static String MODE_MIRROR_STR = "MIRROR";
 	public final static boolean MODE_SPACE = true;
@@ -49,7 +49,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	public int register(Computer computer) throws RemoteException {
 		int jobId = this.computerCount % MAX_JOB_NO;
 		JobContext jobContext = this.jobContextMap.get(jobId);
-		jobContext.addComputer(computer, this.computerCount ++);
+		jobContext.addComputer(computer, this.computerCount);
+		computerCount++;
 		return jobId;
 	}
 

@@ -15,12 +15,14 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	private int jobId;
 	public static final String MULTITHREAD_ON = "MT_ON";
 	public static final String MULTITHREAD_OFF = "MT_OFF";
+	private int taskCounter;
 	public ComputerImpl(boolean multithreadFlag) throws RemoteException {
 		super();
 		if(multithreadFlag)
 			this.workerNo = Runtime.getRuntime().availableProcessors();
 		else this.workerNo = 1;
 		this.jobId = jobId;
+		this.taskCounter = 0;
 	}
 	
 	public static void main(String[] args) {
@@ -55,9 +57,12 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 	@Override
 	public <T> long executeTask(Task<T> task, Space space) throws RemoteException{
+		System.out.println("Computer is executing " + this.jobId);
 		this.startTime = System.nanoTime();
 		task.run(space);
 		this.endTime = System.nanoTime();
+		taskCounter++;
+//		System.out.println("Executing task " + taskCounter);
 		return this.endTime - this.startTime;
 	}
 

@@ -20,7 +20,12 @@ public class JobEuclideanTsp implements Job<List<Integer>>, Serializable{
 	public void setJobId(int jobId) {
 		this.jobId = jobId;
 	}
-	
+		
+	@Override
+	public int getJobId() {
+		// TODO Auto-generated method stub
+		return this.jobId;
+	}
 	@Override
 	public Task<List<Integer>> toTask(long taskId) {
 		List<Integer> prevCities = new ArrayList<Integer> ();
