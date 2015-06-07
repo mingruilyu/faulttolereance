@@ -136,4 +136,6 @@ public interface Space extends Remote {
 	public void checkPoint(JobContext jobContext, int jobId) throws RemoteException;
 	
 	public void resumeJob(int jobId) throws RemoteException;
+
+	<T> void clearShadow(Task<T> task, int jobId) throws RemoteException;
 }

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import space.SpaceImpl;
 import api.Space;
 import api.Task;
 
@@ -321,6 +323,7 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 			long start = System.nanoTime();
 			space.suspendTask(this, this.jobId);
 			this.spawn(space, this.taskId);
+			space.clearShadow(this,this.jobId);
 			long end = System.nanoTime();
 			synchronized(t1) {
 				t1 += end - start;

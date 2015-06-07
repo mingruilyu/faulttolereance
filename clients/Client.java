@@ -71,7 +71,10 @@ public class Client<T> extends JFrame {
 		} catch (RemoteException e) {
 			this.space = this.mirrorSpace;
 			try {
+				Long start = System.currentTimeMillis();
 				this.space.resumeJob(this.jobId);
+				Long end = System.currentTimeMillis();
+				System.out.println("Resuming jobs: " + (end-start));
 				value = this.space.take(this.jobId);
 			} catch (RemoteException | InterruptedException e1) {
 				e1.printStackTrace();

@@ -57,7 +57,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 	@Override
 	public <T> long executeTask(Task<T> task, Space space) throws RemoteException{
-		System.out.println("Computer is executing " + this.jobId);
+//		System.out.println("Computer is executing " + this.jobId);
 		this.startTime = System.nanoTime();
 		task.run(space);
 		this.endTime = System.nanoTime();

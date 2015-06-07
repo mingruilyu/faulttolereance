@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import space.SpaceImpl;
+
 /**
  * Task is an encapsulation of some computation. It is implements Serializable
  * interface since this object will be serialized and deserialized in the RMI
@@ -20,10 +22,10 @@ public abstract class Task<V> implements Serializable {
 	public final long parentId;
 	public final long taskId;
 	public final int jobId;
-	
+
 	protected List<Argument<V>> argList;
 	protected int missingArgCount;
-	
+
 	public static Long t1 = new Long(0);
 	protected static final int WAITING_ANSWER = -1;
 	public static final int NO_PARENT = -1;
@@ -47,7 +49,7 @@ public abstract class Task<V> implements Serializable {
 	 * @param slotIndex
 	 *            the position where the missing argument belongs to.
 	 */
-	public Task(int jobId, long parentId, long taskId,  int slotIndex) {
+	public Task(int jobId, long parentId, long taskId, int slotIndex) {
 		this.taskId = taskId;
 		this.slotIndex = slotIndex;
 		this.parentId = parentId;
@@ -61,9 +63,9 @@ public abstract class Task<V> implements Serializable {
 	 * @param parentId
 	 *            the ID of the successor.
 	 */
-//	public void setId(int parentId) {
-//		this.parentId = parentId;
-//	}
+	// public void setId(int parentId) {
+	// this.parentId = parentId;
+	// }
 
 	/**
 	 * Check whether the task is ready to be executed.
@@ -84,7 +86,8 @@ public abstract class Task<V> implements Serializable {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	abstract public void spawn(Space space, long parentId) throws RemoteException;
+	abstract public void spawn(Space space, long parentId)
+			throws RemoteException;
 
 	/**
 	 * Space set the appropriate input element of the successor task. If the
@@ -101,7 +104,8 @@ public abstract class Task<V> implements Serializable {
 		if (this.parentId == NO_PARENT)
 			try {
 				space.setupResult(result.getArg(), this.jobId);
-				System.out.println("Critical path Time: " + result.getTime() / 1000);
+				System.out.println("Critical path Time: " + result.getTime()
+						/ 1000);
 				System.out.println("T1: " + t1 / 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -143,9 +147,11 @@ public abstract class Task<V> implements Serializable {
 	 *            the index of the slot where the argument should insert.
 	 */
 	public void insertArg(Argument<V> arg, int index) {
-		this.argList.set(index, arg);
-		assert this.missingArgCount > 0;
-		this.missingArgCount--;
+		if (this.argList.get(index) == null) {
+			this.argList.set(index, arg);
+			assert this.missingArgCount > 0;
+			this.missingArgCount--;
+		}else System.out.println("InsertArg null!");
 	}
 
 }
