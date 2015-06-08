@@ -12,7 +12,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	private long startTime;
 	private long endTime;
 	private int workerNo;
-	private int jobId;
+//	private int jobId;
 	public static final String MULTITHREAD_ON = "MT_ON";
 	public static final String MULTITHREAD_OFF = "MT_OFF";
 	private int taskCounter;
@@ -21,7 +21,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		if(multithreadFlag)
 			this.workerNo = Runtime.getRuntime().availableProcessors();
 		else this.workerNo = 1;
-		this.jobId = jobId;
+//		this.jobId = jobId;
 		this.taskCounter = 0;
 	}
 	
@@ -31,9 +31,9 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		Computer computer;
 
 		try {
-			String url = "rmi://" + args[0] + ":" + Space.PORT + "/"
-					+ Space.SERVICE_NAME;
-			Space space = (Space) Naming.lookup(url);
+			String url = "rmi://" + args[0] + ":" + CompManager.PORT + "/"
+					+ CompManager.SERVICE_NAME;
+			CompManager compManager = (CompManager) Naming.lookup(url);
 			if (args[1].equals(ComputerImpl.MULTITHREAD_ON)) {
 				computer = new ComputerImpl(true);
 				System.out.println("Multithread is on");
@@ -41,7 +41,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 				computer = new ComputerImpl(false);
 				System.out.println("Multithread is off");
 			}
-			computer.setJobId(space.register(computer));
+			compManager.register(computer);
 			
 		} catch (Exception e) {
 			System.out.println("ComputeEngine Exception");
@@ -76,8 +76,8 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		this.workerNo --;
 	}
 
-	@Override
-	public void setJobId(int jobId) throws RemoteException {
-		this.jobId = jobId;
-	}
+//	@Override
+//	public void setJobId(int jobId) throws RemoteException {
+//		this.jobId = jobId;
+//	}
 }

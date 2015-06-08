@@ -39,7 +39,7 @@ public interface Space extends Remote {
 	 *             occurs if there is a communication problem or the remote
 	 *             service is not responding.
 	 */
-	int register(Computer computer) throws RemoteException;
+//	int register(Computer computer) throws RemoteException;
 
 	/**
 	 * Put the generated new task to the task queue.
@@ -129,7 +129,7 @@ public interface Space extends Remote {
 	
 	public Space getMirror() throws RemoteException;
 	
-	public int prepareJob(Job job) throws RemoteException;
+	public int prepareJob(Job job, int compNum) throws RemoteException;
 	
 	public void addMirror(Space space) throws RemoteException;
 	

@@ -54,8 +54,8 @@ public class JobContext implements Serializable {
 	}
 
 	public void addComputer(Computer computer, int computerCount,
-			SpaceImpl space) {
-		this.jobId = (computerCount) % SpaceImpl.MAX_JOB_NO;
+			SpaceImpl space, int jobId) {
+		this.jobId = jobId;
 		this.computerList.put(computerCount, computer);
 		ComputerProxy computerProxy = new ComputerProxy(space, computer,
 				computerCount, this.jobId, this.lock);

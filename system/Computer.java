@@ -11,5 +11,5 @@ public interface Computer extends Remote {
 	int getWorkerNo() throws RemoteException;
 	void exit() throws RemoteException;
 	void decrementWorkerNo() throws RemoteException;
-	void setJobId(int jobId) throws RemoteException;
+//	void setJobId(int jobId) throws RemoteException;
 }

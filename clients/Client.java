@@ -28,7 +28,8 @@ public class Client<T> extends JFrame {
 	protected Space space;
 	protected Space mirrorSpace;
 	private int jobId;
-	public Client(final String title, final String domainName) 
+	private int compNum;
+	public Client(final String title, final String domainName, final int compNum) 
 			throws RemoteException, NotBoundException,
 			MalformedURLException {
 		setTitle(title);
@@ -37,6 +38,7 @@ public class Client<T> extends JFrame {
 		String url = "rmi://" + domainName + ":" + Space.PORT + "/"
 				+ Space.SERVICE_NAME;
 		this.space = (Space) Naming.lookup(url);
+		this.compNum = compNum;
 	}
 
 	public void begin() {
@@ -62,7 +64,7 @@ public class Client<T> extends JFrame {
 		T value = null;
 		try {
 			this.mirrorSpace = this.space.getMirror();
-			this.jobId = this.space.prepareJob(job);
+			this.jobId = this.space.prepareJob(job,compNum);
 			System.out.println("Space prepare job "+this.jobId);
 			this.space.startJob(this.jobId);
 			value = this.space.take(this.jobId);
