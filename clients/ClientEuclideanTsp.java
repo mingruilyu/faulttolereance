@@ -31,8 +31,8 @@ public class ClientEuclideanTsp extends Client<List<Integer>> {
 		{ 3, 3 },
 		{ 6, 3 },
 		{ 6, 6 },
-		{ 3, 6 },
-		{ 4, 4 },
+//		{ 3, 6 },
+//		{ 4, 4 },
 		//{ 5, 4 },
 		//{ 5, 5 },
 		//{ 4, 5 }
@@ -48,7 +48,7 @@ public class ClientEuclideanTsp extends Client<List<Integer>> {
 		System.setSecurityManager(new SecurityManager());
 		final ClientEuclideanTsp client = new ClientEuclideanTsp(args[0], args[1]);
 		client.begin();
-		final List<Integer> value = client.runJob(new JobEuclideanTsp(13));
+		final List<Integer> value = client.runJob(new JobEuclideanTsp(11));
 		System.out.println(value);
 		client.add(client.getLabel(value.toArray(new Integer[0])));
 		client.end();

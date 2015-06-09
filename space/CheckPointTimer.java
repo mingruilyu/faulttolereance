@@ -11,7 +11,7 @@ public class CheckPointTimer extends Timer{
 	
 	public CheckPointTimer(JobContext jobContext, Space mirror, int jobId) {
 		this.checkpointTask = new CheckPointTask(jobContext, mirror, jobId);
-		this.scheduleAtFixedRate(this.checkpointTask, 0, 25000);
+		this.scheduleAtFixedRate(this.checkpointTask, 0, 5000);
 	}
 	
 	private class CheckPointTask extends TimerTask {

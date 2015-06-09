@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	private int computerCount;
 	private int jobCount;
 	private String managerHostname;
+	private List<Computer> compList;
 
 	public SpaceImpl(boolean mode, String managerHostname)
 			throws RemoteException, MalformedURLException, NotBoundException {
@@ -52,6 +54,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		String url = "rmi://" + managerHostname + ":" + CompManager.PORT + "/"
 				+ CompManager.SERVICE_NAME;
 		compManager = (CompManager) Naming.lookup(url);
+		compList = new ArrayList<Computer>();
 	}
 
 	// @Override
@@ -119,6 +122,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	@Override
 	public <T> void setupResult(T result, int jobId) throws RemoteException {
 		this.jobContextMap.get(jobId).setupResult(result);
+		compManager.releaseComputer(compList);
 	}
 
 	@Override
@@ -175,7 +179,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		this.jobContextMap.get(jobId).setJob(job);
 //		this.jobContextMap.get(jobId).setJ
 		JobContext jobContext = this.jobContextMap.get(jobId);
-		List<Computer> compList = compManager.allocateComputer(compNum);
+		compList = compManager.allocateComputer(compNum);
 		computerCount = 0;
 		for (Computer computer : compList) {
 			jobContext.addComputer(computer, this.computerCount, this, jobId);

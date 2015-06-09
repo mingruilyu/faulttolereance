@@ -50,7 +50,9 @@ public class CompManagerImpl extends UnicastRemoteObject implements CompManager{
 		synchronized (compList) {
 			for (Computer comp : compList) {
 				computerList.put(comp, false);
+				unusedComputer++;
 			}
+			System.out.println("Release Computer!");
 		}
 	}
 	
