@@ -1,4 +1,4 @@
-package space;
+package api;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -11,12 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import space.SpaceImpl;
 import system.Computer;
 import system.ComputerProxy;
-import api.Argument;
-import api.Job;
-import api.Space;
-import api.Task;
 
 public class JobContext implements Serializable {
 	public final BlockingDeque<Task> readyQueue;
@@ -138,7 +135,7 @@ public class JobContext implements Serializable {
 			this.shared = shared;
 	}
 
-	void removeDuplicate() {
+	public void removeDuplicate() {
 		if (!this.readyQueue.isEmpty()) {
 			// remove the duplicate between ready queue and shadow
 			Task task = this.readyQueue.getLast();
@@ -156,12 +153,11 @@ public class JobContext implements Serializable {
 		}
 	}
 
-	void resumeJob(SpaceImpl space) {
+	public void resumeJob(SpaceImpl space) {
 		for(Long key:this.shadow.keySet()){
 			try {
 				this.readyQueue.put(this.shadow.get(key));
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -174,6 +170,8 @@ public class JobContext implements Serializable {
 	}
 
 	class Lock implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		public Lock() {}
 	}
 }

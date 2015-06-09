@@ -1,6 +1,5 @@
 package system;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -16,7 +15,6 @@ public class CompManagerImpl extends UnicastRemoteObject implements CompManager{
 	
 	
 	public CompManagerImpl() throws RemoteException{
-		// TODO Auto-generated constructor stub
 		this.computerList = new HashMap<Computer, Boolean>();
 		unusedComputer = 0;
 	}

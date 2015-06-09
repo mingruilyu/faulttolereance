@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import api.JobContext;
 import api.Space;
 
 public class CheckPointTimer extends Timer{
