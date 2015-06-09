@@ -9,13 +9,11 @@ public class WorkerProxy extends Thread {
 	private boolean running;
 	private SpaceImpl space;
 	private Computer computer;
-	private int computerProxyId;
 	private int jobId;
 	private Object lock;
-	public WorkerProxy(SpaceImpl space, Computer computer, int computerProxyId, int jobId, Object lock) {
+	public WorkerProxy(SpaceImpl space, Computer computer, int jobId, Object lock) {
 		this.space = space;
 		this.computer = computer;
-		this.computerProxyId = computerProxyId;
 		this.jobId = jobId;
 		this.lock = lock;
 	}

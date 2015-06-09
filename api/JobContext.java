@@ -1,9 +1,11 @@
 package api;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
@@ -21,7 +23,7 @@ public class JobContext implements Serializable {
 	public final Map<Long, Task> shadow;
 	public final BlockingQueue resultQueue;
 	private long taskCounter;
-	private Map<Integer, Computer> computerList;
+	public final List<Computer> computerList;
 	private Double shared;
 	private Job job;
 	private int jobId;
@@ -29,8 +31,7 @@ public class JobContext implements Serializable {
 	public static final long serialVersionUID = 227L;
 
 	public JobContext(SpaceImpl space) {
-		this.computerList = Collections
-				.synchronizedMap(new HashMap<Integer, Computer>());
+		this.computerList = new ArrayList<Computer>();
 		this.readyQueue = new LinkedBlockingDeque<Task>();
 		this.waitingQueue = Collections
 				.synchronizedMap(new HashMap<Long, Task>());
@@ -42,6 +43,7 @@ public class JobContext implements Serializable {
 		this.lock = new Lock();
 	}
 
+	
 	public void setJob(Job job) {
 		this.readyQueue.clear();
 		this.waitingQueue.clear();
@@ -50,12 +52,12 @@ public class JobContext implements Serializable {
 		this.job = job;
 	}
 
-	public void addComputer(Computer computer, int computerCount,
-			SpaceImpl space, int jobId) {
+	public void addComputer(Computer computer, SpaceImpl space, int jobId) {
 		this.jobId = jobId;
-		this.computerList.put(computerCount, computer);
-		ComputerProxy computerProxy = new ComputerProxy(space, computer,
-				computerCount, this.jobId, this.lock);
+		synchronized(this.computerList) {
+			this.computerList.add(computer);
+		}
+		ComputerProxy computerProxy = new ComputerProxy(space, computer, this.jobId, this.lock);
 		computerProxy.startWorker();
 	}
 
@@ -161,10 +163,8 @@ public class JobContext implements Serializable {
 				e.printStackTrace();
 			}
 		}
-		for (Integer computerId : this.computerList.keySet()) {
-			Computer computer = this.computerList.get(computerId);
-			ComputerProxy computerProxy = new ComputerProxy(space, computer,
-					computerId, this.jobId, this.lock);
+		for (Computer computer : this.computerList) {
+			ComputerProxy computerProxy = new ComputerProxy(space, computer, this.jobId, this.lock);
 			computerProxy.startWorker();
 		}
 	}

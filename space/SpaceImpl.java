@@ -36,14 +36,11 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	public final static boolean MODE_SPACE = true;
 	public final static boolean MODE_MIRROR = false;
 	public final boolean mode;
-	private int computerCount;
 	private int jobCount;
 	private String managerHostname;
-	private List<Computer> compList;
 
 	public SpaceImpl(boolean mode, String managerHostname)
 			throws RemoteException, MalformedURLException, NotBoundException {
-		this.computerCount = 0;
 		this.jobCount = 0;
 		this.mode = mode;
 		this.jobContextMap = new HashMap<Integer, JobContext>();
@@ -55,7 +52,6 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		String url = "rmi://" + managerHostname + ":" + CompManager.PORT + "/"
 				+ CompManager.SERVICE_NAME;
 		compManager = (CompManager) Naming.lookup(url);
-		compList = new ArrayList<Computer>();
 	}
 
 	// @Override
@@ -122,8 +118,9 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public <T> void setupResult(T result, int jobId) throws RemoteException {
-		this.jobContextMap.get(jobId).setupResult(result);
-		compManager.releaseComputer(compList);
+		JobContext jobContext = this.jobContextMap.get(jobId);
+		jobContext.setupResult(result);
+		compManager.releaseComputer(jobContext.computerList);
 	}
 
 	@Override
@@ -178,14 +175,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		System.out.println("jobId: "+jobId);
 		job.setJobId(jobId);
 		this.jobContextMap.get(jobId).setJob(job);
-//		this.jobContextMap.get(jobId).setJ
 		JobContext jobContext = this.jobContextMap.get(jobId);
-		compList = compManager.allocateComputer(compNum);
-		computerCount = 0;
-		for (Computer computer : compList) {
-			jobContext.addComputer(computer, this.computerCount, this, jobId);
-			computerCount++;
-		}
+		List<Computer> computerList = compManager.allocateComputer(compNum);
+		for (Computer computer : computerList)
+			jobContext.addComputer(computer, this, jobId);
 		return jobId;
 	}
 
