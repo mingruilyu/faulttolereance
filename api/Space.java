@@ -3,8 +3,6 @@ package api;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import space.JobContext;
-
 /**
  * 
  * @author Gongxl

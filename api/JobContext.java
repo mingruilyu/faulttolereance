@@ -1,4 +1,4 @@
-package space;
+package api;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -11,9 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import api.Argument;
-import api.Job;
-import api.Task;
+import space.SpaceImpl;
 import system.Computer;
 import system.ComputerProxy;
 
