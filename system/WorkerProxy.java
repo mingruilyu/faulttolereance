@@ -25,6 +25,7 @@ public class WorkerProxy extends Thread {
 		super.run();
 		System.out.println("Start a new worker proxy!");
 		this.running = true;
+		System.out.println("Current job id: "+jobId);
 		while(this.running) {
 			Task task = null;
 			try {

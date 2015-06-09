@@ -34,11 +34,13 @@ public class CompManagerImpl extends UnicastRemoteObject implements CompManager{
 			for (Computer computer : computerList.keySet()) {
 				if (addCount == num)
 					break;
-				addCount++;
-				if (!computerList.get(computer))
+//				addCount++;
+				if (!computerList.get(computer)) {	//addCount++ only when the computer can be used
 					allocateList.add(computer);
-				computerList.put(computer, true);
-				unusedComputer--;
+					addCount++;
+					computerList.put(computer, true);
+					unusedComputer--;
+				}
 			}
 		}
 		return allocateList;

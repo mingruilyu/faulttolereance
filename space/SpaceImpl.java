@@ -123,6 +123,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public <T> void startJob(int jobId) throws RemoteException {
+		System.out.println("Get jobContext "+jobId);
 		JobContext jobContext = this.jobContextMap.get(jobId);
 		jobContext.startJob();
 		this.timerMap.put(jobId, new CheckPointTimer(jobContext, this.mirror,
@@ -167,9 +168,12 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public int prepareJob(Job job, int compNum) throws RemoteException {
+		System.out.println("JobCount: "+jobCount);
 		int jobId = (this.jobCount++) % MAX_JOB_NO;
+		System.out.println("jobId: "+jobId);
 		job.setJobId(jobId);
 		this.jobContextMap.get(jobId).setJob(job);
+//		this.jobContextMap.get(jobId).setJ
 		JobContext jobContext = this.jobContextMap.get(jobId);
 		List<Computer> compList = compManager.allocateComputer(compNum);
 		computerCount = 0;

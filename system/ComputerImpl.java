@@ -60,6 +60,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 //		System.out.println("Computer is executing " + this.jobId);
 		this.startTime = System.nanoTime();
 		task.run(space);
+//		System.out.println("Computer is executing ");
 		this.endTime = System.nanoTime();
 		taskCounter++;
 //		System.out.println("Executing task " + taskCounter);
