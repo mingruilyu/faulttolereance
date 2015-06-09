@@ -13,9 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import system.CompManager;
 import system.Computer;
 import api.Argument;
+import api.CompManager;
 import api.Job;
 import api.JobContext;
 import api.Space;
@@ -177,11 +177,27 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		this.jobContextMap.get(jobId).setJob(job);
 		JobContext jobContext = this.jobContextMap.get(jobId);
 		List<Computer> computerList = compManager.allocateComputer(compNum);
+		if(computerList == null) {
+			System.out.println("Currently no computer available!");
+			return -1;
+		}
 		for (Computer computer : computerList)
 			jobContext.addComputer(computer, this, jobId);
 		return jobId;
 	}
 
+	public void supplementComputer(int jobId) {
+		JobContext jobContext = this.jobContextMap.get(jobId);
+		System.out.println("Supple a new computer!");
+		try {
+			List<Computer> computerList = compManager.allocateComputer(1);
+			if(computerList == null) return;
+			jobContext.addComputer(computerList.get(0), this, jobId);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void checkPoint(JobContext jobContext, int jobId)
 			throws RemoteException {
@@ -198,6 +214,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		this.jobContextMap.put(jobId, jobContext);
 	}
 
+	public void removeComputerRequest(Computer computer) throws RemoteException {
+		this.compManager.removeComputer(computer);
+	}
+	
 	@Override
 	public void resumeJob(int jobId) throws RemoteException {
 		this.jobContextMap.get(jobId).resumeJob(this);

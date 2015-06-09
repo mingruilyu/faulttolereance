@@ -49,6 +49,7 @@ public class ClientEuclideanTsp extends Client<List<Integer>> {
 		final ClientEuclideanTsp client = new ClientEuclideanTsp(args[0], args[1]);
 		client.begin();
 		final List<Integer> value = client.runJob(new JobEuclideanTsp(13));
+		if(value == null) return;
 		System.out.println(value);
 		client.add(client.getLabel(value.toArray(new Integer[0])));
 		client.end();

@@ -11,11 +11,15 @@ public class WorkerProxy extends Thread {
 	private Computer computer;
 	private int jobId;
 	private Object lock;
-	public WorkerProxy(SpaceImpl space, Computer computer, int jobId, Object lock) {
+	private ComputerProxy computerProxy;
+	public WorkerProxy(SpaceImpl space, Computer computer, 
+						ComputerProxy computerProxy, 
+						int jobId, Object lock) {
 		this.space = space;
 		this.computer = computer;
 		this.jobId = jobId;
 		this.lock = lock;
+		this.computerProxy = computerProxy;
 	}
 	
 	@Override
@@ -43,7 +47,10 @@ public class WorkerProxy extends Thread {
 				e.printStackTrace();
 				try {
 					this.space.issueTask(task, this.jobId);
-					//this.computer.decrementWorkerNo();
+					if(this.computerProxy.decrementWorkerNo() == 0) {
+						this.space.removeComputerRequest(computer);
+						this.space.supplementComputer(this.jobId);
+					}
 					//if(this.computer.getWorkerNo() == 0)
 						//this.space.deleteComputerProxy(this.computerProxyId);
 					break;

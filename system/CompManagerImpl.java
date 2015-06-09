@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import api.CompManager;
+
 public class CompManagerImpl extends UnicastRemoteObject implements CompManager{
 	private Map<Computer, Boolean> computerList;
 	private int unusedComputer;
@@ -22,6 +24,7 @@ public class CompManagerImpl extends UnicastRemoteObject implements CompManager{
 		this.computerList.put(computer, false);
 		this.unusedComputer++;
 	}
+	
 
 	public List<Computer> allocateComputer(int num) throws RemoteException{
 		if (num > this.unusedComputer)
@@ -67,5 +70,9 @@ public class CompManagerImpl extends UnicastRemoteObject implements CompManager{
 			System.out.println("Manager Exception");
 			e.printStackTrace();
 		}
+	}
+	@Override
+	public void removeComputer(Computer computer) throws RemoteException {
+		this.computerList.remove(computer);		
 	}
 }

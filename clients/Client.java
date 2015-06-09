@@ -65,6 +65,10 @@ public class Client<T> extends JFrame {
 		try {
 			this.mirrorSpace = this.space.getMirror();
 			this.jobId = this.space.prepareJob(job,compNum);
+			if(this.jobId == -1) {
+				System.out.println("Currently No computer available! Try later!");
+				return null;
+			}
 			System.out.println("Space prepare job "+this.jobId);
 			this.space.startJob(this.jobId);
 			value = this.space.take(this.jobId);
