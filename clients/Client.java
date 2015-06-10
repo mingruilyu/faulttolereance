@@ -1,7 +1,5 @@
 package clients;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -10,12 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 
 import api.Job;
 import api.Space;
-import api.Task;
 /**
  *
  * @author Mingrui Lyu
@@ -30,6 +25,7 @@ public class Client<T> extends JFrame {
 	protected int jobId;
 	private int compNum;
 	private Boolean finalFlag;
+	private DisplayThread displayThread;
 	public Client(final String title, final String domainName, final int compNum) 
 			throws RemoteException, NotBoundException,
 			MalformedURLException {
@@ -40,10 +36,13 @@ public class Client<T> extends JFrame {
 				+ Space.SERVICE_NAME;
 		this.space = (Space) Naming.lookup(url);
 		this.compNum = compNum;
+		this.finalFlag = false;
 	}
 
 	public void begin(DisplayThread displayThread) {
 		clientStartTime = System.nanoTime();
+
+		this.displayThread = displayThread;
 		displayThread.setFinalFlag(finalFlag);
 		displayThread.setJFrame(this);
 		displayThread.setJobId(jobId);
@@ -89,6 +88,7 @@ public class Client<T> extends JFrame {
 			this.space = this.mirrorSpace;
 			try {
 				Long start = System.currentTimeMillis();
+				this.displayThread.setSpace(this.space);
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
 				System.out.println("Resuming jobs: " + (end-start));
