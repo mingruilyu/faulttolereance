@@ -202,7 +202,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	@Override
 	public void checkPoint(JobContext jobContext, int jobId)
 			throws RemoteException {
-		jobContext.removeDuplicate();
+		//jobContext.removeDuplicate();
 		Iterator<Long> it = jobContext.shadow.keySet().iterator();
 		while (it.hasNext()) {
 			Long key = it.next();
