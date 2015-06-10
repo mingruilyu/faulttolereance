@@ -130,10 +130,11 @@ public class JobContext implements Serializable {
 	public <T> void clearShadow(Task<T> task, long taskId, boolean mode){
 		if (mode == SpaceImpl.MODE_SPACE) {
 			synchronized(this.shadow) {
-				System.out.println(this.shadow.remove(taskId, task));
+				//System.out.println(this.shadow.remove(taskId, task));
+				this.shadow.remove(task.taskId);
 			}
 		}
-		//this.shadow.remove(task.taskId);
+		
 	}
 
 	synchronized public long getTaskId() {
