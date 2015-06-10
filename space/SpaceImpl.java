@@ -143,7 +143,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public <T> void clearShadow(Task<T> task, int jobId) throws RemoteException {
-		this.jobContextMap.get(jobId).clearShadow(task, task.taskId, this.mode);
+		this.jobContextMap.get(jobId).clearShadow(task.taskId, this.mode);
 	}
 
 	@Override

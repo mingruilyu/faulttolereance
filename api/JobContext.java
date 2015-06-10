@@ -124,9 +124,9 @@ public class JobContext implements Serializable {
 		this.waitingQueue.put(taskId, task);
 	}
 
-	public <T> void clearShadow(Task<T> task, long taskId, boolean mode) {
+	public <T> void clearShadow(long taskId, boolean mode) {
 		if (mode == SpaceImpl.MODE_SPACE)
-			this.shadow.remove(task.taskId);
+			this.shadow.remove(taskId);
 	}
 
 	synchronized public long getTaskId() {

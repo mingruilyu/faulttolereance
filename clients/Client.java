@@ -88,10 +88,8 @@ public class Client<T> extends JFrame {
 		} catch (RemoteException e) {
 			this.space = this.mirrorSpace;
 			try {
-				Long start = System.currentTimeMillis();
-				Thread.sleep(500);
-				this.displayThread.setSpace(this.space);
-				this.displayThread.start();
+				Long start = System.currentTimeMillis();			
+				begin(new DisplayThread());
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
 				System.out.println("Resuming jobs: " + (end-start));
