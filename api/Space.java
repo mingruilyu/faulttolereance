@@ -121,7 +121,7 @@ public interface Space extends Remote {
 	
 	public Double getShared(int jobId) throws RemoteException;
 	
-	public void putShared(Double shared, int jobId) throws RemoteException;
+	public void putShared(Shared shared, int jobId) throws RemoteException;
 	
 	public Space getMirror() throws RemoteException;
 	

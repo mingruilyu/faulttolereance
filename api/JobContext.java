@@ -24,7 +24,7 @@ public class JobContext implements Serializable {
 	public final BlockingQueue resultQueue;
 	private long taskCounter;
 	public final List<Computer> computerList;
-	private Double shared;
+	private Shared shared;
 	private Job job;
 	private int jobId;
 	private Lock lock;
@@ -38,7 +38,7 @@ public class JobContext implements Serializable {
 		this.resultQueue = new LinkedBlockingQueue<Task>();
 //		this.shadow = Collections.synchronizedMap(new HashMap<Long, Task>());
 		this.shadow = new ConcurrentHashMap<Long, Task>();
-		this.shared = (double) 100000;
+		this.shared = null;
 		this.taskCounter = 0;
 		this.lock = new Lock();
 	}
@@ -130,11 +130,12 @@ public class JobContext implements Serializable {
 	}
 
 	public Double getShared() {
-		return this.shared;
+		if(this.shared == null) return Double.MAX_VALUE;
+		return this.shared.shortestDistance;
 	}
 
-	synchronized public void putShared(Double shared) {
-		if (this.shared > shared)
+	synchronized public void putShared(Shared shared) {
+		if (this.shared ==  null || this.shared.shortestDistance > shared.shortestDistance)
 			this.shared = shared;
 	}
 
