@@ -28,16 +28,17 @@ public class TSPDisplayThread extends DisplayThread{
 				//System.out.println(result.cities);
 			} catch (RemoteException | InterruptedException e) {
 				System.out.println("Display thread return!");
-				try {
-					System.out.println("Before wait");
-					synchronized (this) {
-						wait();
-					}
-					System.out.println("After wait");
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				return;
+//				try {
+//					System.out.println("Before wait");
+//					synchronized (this) {
+//						wait();
+//					}
+//					System.out.println("After wait");
+//				} catch (InterruptedException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				//e.printStackTrace();
 			}
 			if(container.getComponentCount() != 0)

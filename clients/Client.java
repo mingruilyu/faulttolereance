@@ -46,7 +46,7 @@ public class Client<T> extends JFrame {
 		displayThread.setJFrame(this);
 		displayThread.setJobId(jobId);
 		displayThread.setSpace(space);
-		displayThread.start();
+		new Thread(displayThread).start();
 	}
 
 	public void end() {		
@@ -87,12 +87,13 @@ public class Client<T> extends JFrame {
 		} catch (RemoteException e) {
 			this.space = this.mirrorSpace;
 			try {
-				Long start = System.currentTimeMillis();			
-//				begin(new TSPDisplayThread());
+				Long start = System.currentTimeMillis();	
 				this.displayThread.setSpace(this.space);
-				synchronized (this.displayThread) {
-					this.displayThread.notifyAll();
-				}
+				new Thread(displayThread).start();
+//				this.displayThread.setSpace(this.space);
+//				synchronized (this.displayThread) {
+//					this.displayThread.notifyAll();
+//				}
 				
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();

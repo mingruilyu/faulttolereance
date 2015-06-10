@@ -18,7 +18,7 @@ import javax.swing.JScrollPane;
 import api.Shared;
 import api.Space;
 
-public class DisplayThread extends Thread {
+public class DisplayThread implements Runnable {
 	public static final int NUM_PIXALS = 600;
 	protected Container container;
 	protected int jobId;
@@ -42,6 +42,12 @@ public class DisplayThread extends Thread {
 		this.jFrame = jframe;
 		this.container = jFrame.getContentPane();
 		this.container.setLayout(new BorderLayout());
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
