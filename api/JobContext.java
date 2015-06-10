@@ -104,28 +104,12 @@ public class JobContext implements Serializable {
 	}
 	
 	public <T> T takeIntermediateResult() throws InterruptedException {
-		return (T) this.resultQueue.take();
+		return (T) this.intermediateQueue.take();
 	}
 
 	public <T> void setupFinalResult(T result) {
 		try {
 			this.resultQueue.put(result);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void setupIntermediateResult(Shared shared) {
-		try {
-			this.intermediateQueue.put(shared);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void setupIntermediateResult() {
-		try {
-			this.intermediateQueue.put(shared);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -159,6 +143,7 @@ public class JobContext implements Serializable {
 		if (this.shared == null || this.shared.shortestDistance > shared.shortestDistance)
 			this.shared = shared;
 		try {
+			System.out.println("put to intermediate queue");
 			this.intermediateQueue.put(shared);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -166,6 +151,7 @@ public class JobContext implements Serializable {
 	}
 	
 	synchronized public void putShared(){
+		System.out.println("Synchronized");
 		try {
 			this.intermediateQueue.put(this.shared);
 		} catch (InterruptedException e) {

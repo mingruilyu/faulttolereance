@@ -19,12 +19,12 @@ public class TSPDisplayThread extends DisplayThread{
 	@Override
 	public void run() {
 		super.run();
-		this.jFrame.pack();
-		this.jFrame.setVisible(true);
+
 		Shared result = null;
 		do {
 			try {
 				result = space.takeIntermediateResult(this.jobId);
+				//System.out.println(result.cities);
 			} catch (RemoteException | InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -32,7 +32,10 @@ public class TSPDisplayThread extends DisplayThread{
 				container.remove(0);
 			container.add(new JScrollPane(this.getLabel(result.cities.toArray(new Integer[0]))), 
 										  BorderLayout.CENTER);
+			this.jFrame.pack();
+			this.jFrame.setVisible(true);
 		} while (!this.finalFlag);
+		System.out.println("out of display loop");
 	}
 	
 	public JLabel getLabel(final Integer[] tour) {

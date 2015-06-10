@@ -36,14 +36,14 @@ public class Client<T> extends JFrame {
 				+ Space.SERVICE_NAME;
 		this.space = (Space) Naming.lookup(url);
 		this.compNum = compNum;
-		this.finalFlag = false;
+		this.finalFlag = new Boolean(false);
 	}
 
 	public void begin(DisplayThread displayThread) {
 		clientStartTime = System.nanoTime();
 
 		this.displayThread = displayThread;
-		displayThread.setFinalFlag(finalFlag);
+		displayThread.setFinalFlag(this.finalFlag);
 		displayThread.setJFrame(this);
 		displayThread.setJobId(jobId);
 		displayThread.setSpace(space);
@@ -51,7 +51,7 @@ public class Client<T> extends JFrame {
 	}
 
 	public void end() {		
-		this.finalFlag = true;		//set flag
+		this.displayThread.setFinalFlag(new Boolean(true));
 		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
 				"Client time: {0} ms.",
 				(System.nanoTime() - clientStartTime) / 1000000);
@@ -78,9 +78,10 @@ public class Client<T> extends JFrame {
 			System.out.println("Space prepare job "+this.jobId);
 			this.space.startJob(this.jobId);
 			
-			this.begin(new DisplayThread());
+			this.begin(displayThread);
 			value = this.space.takeFinalResult(this.jobId);
 			this.end();
+			System.out.println("end");
 			this.space.synchronizeFinalResult(this.jobId);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -104,6 +105,4 @@ public class Client<T> extends JFrame {
 		System.out.println("Job runtime = " + taskRunTime);
 		return value;
 	}
-	
-	
 }
