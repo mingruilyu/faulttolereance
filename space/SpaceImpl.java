@@ -124,6 +124,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		JobContext jobContext = this.jobContextMap.get(jobId);
 		jobContext.setupFinalResult(result);
 		compManager.releaseComputer(jobContext.computerList);
+		jobContext.computerList.clear();
 	}
 
 	@Override
@@ -233,7 +234,9 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public void synchronizeFinalResult(int jobId) throws RemoteException {
-		this.jobContextMap.get(jobId).putShared();
+		JobContext jobContext = this.jobContextMap.get(jobId);
+		jobContext.putShared();
+		jobContext.clearJobContext();
 	}
 }
 

@@ -76,7 +76,7 @@
 		<java classname = "clients.ClientEuclideanTsp" fork = "true">
 			<jvmarg value = "-Djava.security.policy=policy"/>
 			<arg value = "${space_domain}"/>
-			<arg value = "1"/>
+			<arg value = "2"/>
 			<classpath>
 				<pathelement location = "dist/clients.jar"/>
 			</classpath>
