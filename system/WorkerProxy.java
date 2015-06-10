@@ -44,7 +44,7 @@ public class WorkerProxy extends Thread {
 				long time = this.computer.executeTask(task, this.space);
 //				System.out.println("Task running time: " + time);
 			} catch (RemoteException | InterruptedException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
 				try {
 					this.space.issueTask(task, this.jobId);
 					if(this.computerProxy.decrementWorkerNo() == 0) {
