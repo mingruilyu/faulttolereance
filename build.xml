@@ -3,8 +3,8 @@
 	<property name = "build" location = "build" />
 	<property name = "dist" location = "dist" />
 	<property name = "doc" location = "doc" />
-	<property name = "computer_manager_domain" value = "localhost" />
-	<property name = "space_domain" value = "localhost" />
+	<property name = "computer_manager_domain" value = "pinky.cs.ucsb.edu" />
+	<property name = "space_domain" value = "tick.cs.ucsb.edu" />
 	<property name = "space_runnable_on" value = "SR_ON" />
 	<property name = "space_runnable_off" value = "SR_OFF" />
 	<property name = "multithread_on" value = "MT_ON" />
