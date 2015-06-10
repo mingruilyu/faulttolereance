@@ -26,7 +26,8 @@ public class TSPDisplayThread extends DisplayThread{
 				result = space.takeIntermediateResult(this.jobId);
 				//System.out.println(result.cities);
 			} catch (RemoteException | InterruptedException e) {
-				e.printStackTrace();
+				return;
+				//e.printStackTrace();
 			}
 			if(container.getComponentCount() != 0)
 				container.remove(0);
