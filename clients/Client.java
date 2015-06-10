@@ -89,6 +89,7 @@ public class Client<T> extends JFrame {
 			try {
 				Long start = System.currentTimeMillis();			
 //				begin(new TSPDisplayThread());
+				this.displayThread.setSpace(this.space);
 				this.displayThread.notifyAll();
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();

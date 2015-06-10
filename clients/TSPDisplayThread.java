@@ -29,7 +29,9 @@ public class TSPDisplayThread extends DisplayThread{
 			} catch (RemoteException | InterruptedException e) {
 				System.out.println("Display thread return!");
 				try {
+					System.out.println("Before wait");
 					wait();
+					System.out.println("After wait");
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
