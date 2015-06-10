@@ -54,8 +54,8 @@ public class ClientEuclideanTsp extends Client<List<Integer>> {
 		
 		final List<Integer> value = client.runJob(new JobEuclideanTsp(13), 
 				new TSPDisplayThread());
-		if(value == null) return;
-		System.out.println(value);
+//		if(value == null) return;
+//		System.out.println(value);
 	}
 
 

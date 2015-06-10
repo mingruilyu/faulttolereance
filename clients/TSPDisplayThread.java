@@ -12,10 +12,11 @@ import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 import api.Shared;
 
-public class TSPDisplayThread extends DisplayThread{
+public class TSPDisplayThread extends DisplayThread {
 	@Override
 	public void run() {
 		super.run();
@@ -24,33 +25,39 @@ public class TSPDisplayThread extends DisplayThread{
 		do {
 			try {
 				result = space.takeIntermediateResult(this.jobId);
-				System.out.println("Take intermediate result!");
-				//System.out.println(result.cities);
+//				System.out.println("Take intermediate result!");
+				// System.out.println(result.cities);
 			} catch (RemoteException | InterruptedException e) {
-				System.out.println("Display thread return!");
+//				System.out.println("Display thread return!");
 				return;
-//				try {
-//					System.out.println("Before wait");
-//					synchronized (this) {
-//						wait();
-//					}
-//					System.out.println("After wait");
-//				} catch (InterruptedException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-				//e.printStackTrace();
+				// try {
+				// System.out.println("Before wait");
+				// synchronized (this) {
+				// wait();
+				// }
+				// System.out.println("After wait");
+				// } catch (InterruptedException e1) {
+				// // TODO Auto-generated catch block
+				// e1.printStackTrace();
+				// }
+				// e.printStackTrace();
 			}
-			if(container.getComponentCount() != 0)
+			if (container.getComponentCount() != 0)
 				container.remove(0);
-			container.add(new JScrollPane(this.getLabel(result.cities.toArray(new Integer[0]))), 
-										  BorderLayout.CENTER);
+			container.add(
+					new JScrollPane(this.getLabel(result.cities
+							.toArray(new Integer[0]))), BorderLayout.CENTER);
+			container.add(new JScrollPane(new JLabel("Current minimum tour is " + result.cities)),
+					BorderLayout.PAGE_START);
+			container.add(new JScrollPane(new JLabel("Current minimum cost is "
+					+ result.shortestDistance)),
+					BorderLayout.PAGE_END);
 			this.jFrame.pack();
 			this.jFrame.setVisible(true);
 		} while (!this.finalFlag);
-		System.out.println("out of display loop");
+		System.out.println("The submitted job is done!");
 	}
-	
+
 	public JLabel getLabel(final Integer[] tour) {
 		Logger.getLogger(ClientEuclideanTsp.class.getCanonicalName()).log(
 				Level.INFO, tourToString(tour));
@@ -74,8 +81,10 @@ public class TSPDisplayThread extends DisplayThread{
 		final double side = Math.max(maxX - minX, maxY - minY);
 		double[][] scaledCities = new double[ClientEuclideanTsp.CITIES.length][2];
 		for (int i = 0; i < ClientEuclideanTsp.CITIES.length; i++) {
-			scaledCities[i][0] = (ClientEuclideanTsp.CITIES[i][0] - minX) / side;
-			scaledCities[i][1] = (ClientEuclideanTsp.CITIES[i][1] - minY) / side;
+			scaledCities[i][0] = (ClientEuclideanTsp.CITIES[i][0] - minX)
+					/ side;
+			scaledCities[i][1] = (ClientEuclideanTsp.CITIES[i][1] - minY)
+					/ side;
 		}
 
 		final Image image = new BufferedImage(NUM_PIXALS, NUM_PIXALS,
@@ -87,10 +96,10 @@ public class TSPDisplayThread extends DisplayThread{
 		// draw edges
 		graphics.setColor(Color.BLUE);
 		int x1, y1, x2, y2;
-		System.out.println(tour.length);
-		for(int i=0;i<tour.length;i++) {
-			System.out.println(tour[i]);
-		}
+//		System.out.println(tour.length);
+//		for (int i = 0; i < tour.length; i++) {
+//			System.out.println(tour[i]);
+//		}
 
 		int city1 = tour[0], city2;
 		x1 = margin + (int) (scaledCities[city1][0] * field);
@@ -120,7 +129,7 @@ public class TSPDisplayThread extends DisplayThread{
 		final ImageIcon imageIcon = new ImageIcon(image);
 		return new JLabel(imageIcon);
 	}
-	
+
 	private String tourToString(Integer[] cities) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("Tour: ");

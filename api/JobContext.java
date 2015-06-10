@@ -153,7 +153,7 @@ public class JobContext implements Serializable {
 				|| this.shared.shortestDistance > shared.shortestDistance)
 			this.shared = shared;
 		try {
-			System.out.println("put to intermediate queue");
+//			System.out.println("put to intermediate queue");
 			this.intermediateQueue.put(shared);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -161,7 +161,7 @@ public class JobContext implements Serializable {
 	}
 
 	synchronized public void putShared() {
-		System.out.println("Synchronized");
+		System.out.println("Send back the final result for job "+jobId);
 		try {
 			this.intermediateQueue.put(this.shared);
 		} catch (InterruptedException e) {

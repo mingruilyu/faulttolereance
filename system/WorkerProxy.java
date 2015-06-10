@@ -34,7 +34,7 @@ public class WorkerProxy extends Thread {
 				task = this.space.fetchTask(this.jobId);
 				if(task == null){
 					synchronized (this.lock) {
-						System.out.println("waiting for..." + jobId);
+//						System.out.println("waiting for..." + jobId);
 						this.lock.wait();
 						//////////////////////
 						continue;	

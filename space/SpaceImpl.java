@@ -125,6 +125,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		jobContext.setupFinalResult(result);
 		compManager.releaseComputer(jobContext.computerList);
 		jobContext.computerList.clear();
+//		timerMap.get(jobId).cancel();
 	}
 
 	@Override

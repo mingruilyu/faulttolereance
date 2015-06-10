@@ -51,9 +51,9 @@ public class Client<T> extends JFrame {
 
 	public void end() {		
 		this.displayThread.setFinalFlag(new Boolean(true));
-		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
-				"Client time: {0} ms.",
-				(System.nanoTime() - clientStartTime) / 1000000);
+//		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
+//				"Client time: {0} ms.",
+//				(System.nanoTime() - clientStartTime) / 1000000);
 	}
 
 /*	public void add(final JLabel jLabel) {
@@ -65,7 +65,7 @@ public class Client<T> extends JFrame {
 	}*/
 	
 	public T runJob(Job<T> job, DisplayThread displayThread){
-		final long taskStartTime = System.nanoTime();
+//		final long taskStartTime = System.nanoTime();
 		T value = null;
 		try {
 			this.mirrorSpace = this.space.getMirror();
@@ -80,14 +80,14 @@ public class Client<T> extends JFrame {
 			this.begin(displayThread);
 			value = this.space.takeFinalResult(this.jobId);
 			this.end();
-			System.out.println("end");
+//			System.out.println("end");
 			this.space.synchronizeFinalResult(this.jobId);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
 			this.space = this.mirrorSpace;
 			try {
-				Long start = System.currentTimeMillis();	
+//				Long start = System.currentTimeMillis();	
 				this.displayThread.setSpace(this.space);
 				new Thread(displayThread).start();
 //				this.displayThread.setSpace(this.space);
@@ -96,8 +96,8 @@ public class Client<T> extends JFrame {
 //				}
 				
 				this.space.resumeJob(this.jobId);
-				Long end = System.currentTimeMillis();
-				System.out.println("Resuming jobs: " + (end-start));
+//				Long end = System.currentTimeMillis();
+//				System.out.println("Resuming jobs: " + (end-start));
 				value = this.space.takeFinalResult(this.jobId);
 				this.end();
 				this.space.synchronizeFinalResult(this.jobId);
@@ -106,8 +106,11 @@ public class Client<T> extends JFrame {
 			}
 		}
 
-		final long taskRunTime = (System.nanoTime() - taskStartTime) / 1000000;
-		System.out.println("Job runtime = " + taskRunTime);
+//		final long taskRunTime = (System.nanoTime() - taskStartTime) / 1000000;
+//		System.out.println("Job runtime = " + taskRunTime);
+		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
+				"Client time: {0} ms.",
+				(System.nanoTime() - clientStartTime) / 1000000);
 		return value;
 	}
 }

@@ -310,7 +310,7 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 				double minCost = calculateCost(result);
 				if(minCost < upperbound) {
 					space.putShared(new Shared(minCost, result), this.jobId);
-					System.out.println("Put Shared!");
+//					System.out.println("Put Shared!");
 				}
 			}
 			this.feedback(tspArgument, space);
