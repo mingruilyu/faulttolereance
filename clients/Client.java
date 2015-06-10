@@ -90,6 +90,7 @@ public class Client<T> extends JFrame {
 			try {
 				Long start = System.currentTimeMillis();
 				this.displayThread.setSpace(this.space);
+				Thread.sleep(500);
 				this.displayThread.start();
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
