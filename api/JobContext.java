@@ -141,7 +141,7 @@ public class JobContext implements Serializable {
 	synchronized public long getTaskId() {
 		return this.taskCounter++;
 	}
-
+	
 	public Double getShared() {
 		if (this.shared == null)
 			return Double.MAX_VALUE;
