@@ -90,7 +90,10 @@ public class Client<T> extends JFrame {
 				Long start = System.currentTimeMillis();			
 //				begin(new TSPDisplayThread());
 				this.displayThread.setSpace(this.space);
-				this.displayThread.notifyAll();
+				synchronized (this.displayThread) {
+					this.displayThread.notifyAll();
+				}
+				
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
 				System.out.println("Resuming jobs: " + (end-start));
