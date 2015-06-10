@@ -24,8 +24,10 @@ public class TSPDisplayThread extends DisplayThread{
 		do {
 			try {
 				result = space.takeIntermediateResult(this.jobId);
+				System.out.println("Take intermediate result!");
 				//System.out.println(result.cities);
 			} catch (RemoteException | InterruptedException e) {
+				System.out.println("Display thread return!");
 				return;
 				//e.printStackTrace();
 			}
