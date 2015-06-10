@@ -26,7 +26,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	private Space mirror;
 	private CompManager compManager;
 
-	Map<Integer, CheckPointTimer> timerMap;
+	Map<Integer, CheckPointTimer> timerMap = null;
 
 	private final static String RUNNABLE_ON = "SR_ON";
 	private final static String RUNNABLE_OFF = "SR_OFF";
@@ -46,8 +46,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		if (mode == MODE_SPACE) {
 			for (int i = 0; i < MAX_JOB_NO; i++)
 				this.jobContextMap.put(i, new JobContext(this));
+			this.timerMap = new HashMap<Integer, CheckPointTimer>();
 		}
-		this.timerMap = new HashMap<Integer, CheckPointTimer>();
 		String url = "rmi://" + managerHostname + ":" + CompManager.PORT + "/"
 				+ CompManager.SERVICE_NAME;
 		compManager = (CompManager) Naming.lookup(url);
@@ -236,6 +236,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	@Override
 	public void synchronizeFinalResult(int jobId) throws RemoteException {
 		JobContext jobContext = this.jobContextMap.get(jobId);
+		if(this.timerMap != null)
+			this.timerMap.get(jobId).cancel();
 		jobContext.putShared();
 		jobContext.clearJobContext();
 	}
