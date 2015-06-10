@@ -64,7 +64,7 @@ public class JobContext implements Serializable {
 	}
 
 	public <T> Task<T> fetchTask(boolean mode) throws InterruptedException {
-		synchronized (readyQueue) {
+		synchronized (this.readyQueue) {
 			if (!this.readyQueue.isEmpty()) {
 				Task<T> task = this.readyQueue.getLast();
 				if (mode == SpaceImpl.MODE_SPACE)
@@ -78,7 +78,9 @@ public class JobContext implements Serializable {
 
 	public <T> void issueTask(Task<T> task) {
 		try {
-			this.readyQueue.put(task);
+			synchronized(this.readyQueue) {
+				this.readyQueue.put(task);
+			}
 			synchronized (lock) {
 				this.lock.notifyAll();
 			}
@@ -94,7 +96,9 @@ public class JobContext implements Serializable {
 		synchronized (task) {
 			task.insertArg(arg, slotIndex);
 			if (task.isReady()) {
-				this.waitingQueue.remove(id);
+				synchronized(this.waitingQueue) {
+					this.waitingQueue.remove(id);
+				}
 				this.issueTask(task);
 			}
 		}
@@ -121,12 +125,17 @@ public class JobContext implements Serializable {
 	}
 
 	public <T> void suspendTask(Task<T> task, long taskId, boolean mode) {
-		this.waitingQueue.put(taskId, task);
+		synchronized(this.waitingQueue) {
+			this.waitingQueue.put(taskId, task);
+		}
 	}
 
 	public <T> void clearShadow(long taskId, boolean mode) {
-		if (mode == SpaceImpl.MODE_SPACE)
-			this.shadow.remove(taskId);
+		if (mode == SpaceImpl.MODE_SPACE) {
+			synchronized(this.shadow) {
+				this.shadow.remove(taskId);
+			}
+		}
 	}
 
 	synchronized public long getTaskId() {
@@ -176,21 +185,23 @@ public class JobContext implements Serializable {
 			if (this.shadow.containsKey(task.taskId))
 				this.shadow.remove(task.taskId);
 			// remove the duplicate between waiting queue and shadow
-			Iterator<Long> it = this.shadow.keySet().iterator();
+			/*Iterator<Long> it = this.shadow.keySet().iterator();
 			while (it.hasNext()) {
 				Long key = it.next();
 				if (this.waitingQueue.containsKey(key)) {
 					this.shadow.remove(key);
 					break;
 				}
-			}
+			}*/
 		}
 	}
 
 	public void resumeJob(SpaceImpl space) {
 		for (Long key : this.shadow.keySet()) {
 			try {
-				this.readyQueue.put(this.shadow.get(key));
+				synchronized(this.readyQueue) {
+					this.readyQueue.put(this.shadow.get(key));
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

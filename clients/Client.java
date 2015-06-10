@@ -41,7 +41,6 @@ public class Client<T> extends JFrame {
 
 	public void begin(DisplayThread displayThread) {
 		clientStartTime = System.nanoTime();
-
 		this.displayThread = displayThread;
 		displayThread.setFinalFlag(this.finalFlag);
 		displayThread.setJFrame(this);
