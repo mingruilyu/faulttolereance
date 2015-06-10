@@ -28,9 +28,9 @@ public class CheckPointTimer extends Timer{
 		@Override
 		public void run() {
 			System.out.println("Checkpoint running!");
-			synchronized(this.jobContext.readyQueue) {
+			synchronized(this.jobContext.shadow) {
 				synchronized(this.jobContext.waitingQueue) {
-					synchronized(this.jobContext.shadow) {
+					synchronized(this.jobContext.readyQueue) {
 						try {
 							this.mirror.checkPoint(this.jobContext, jobId);
 							System.out.println("Checkpoint!");
