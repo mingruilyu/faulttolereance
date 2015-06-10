@@ -158,14 +158,14 @@ public class JobContext implements Serializable {
 			if (this.shadow.containsKey(task.taskId))
 				this.shadow.remove(task.taskId);
 			// remove the duplicate between waiting queue and shadow
-			Iterator<Long> it = this.shadow.keySet().iterator();
+			/*Iterator<Long> it = this.shadow.keySet().iterator();
 			while(it.hasNext()) {
 				Long key = it.next();
 				if (this.waitingQueue.containsKey(key)) {
 					this.shadow.remove(key);
 					break;
 				}
-			}
+			}*/
 		}
 	}
 
