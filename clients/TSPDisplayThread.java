@@ -28,7 +28,12 @@ public class TSPDisplayThread extends DisplayThread{
 				//System.out.println(result.cities);
 			} catch (RemoteException | InterruptedException e) {
 				System.out.println("Display thread return!");
-				return;
+				try {
+					wait();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				//e.printStackTrace();
 			}
 			if(container.getComponentCount() != 0)
