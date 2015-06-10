@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +18,6 @@ import api.Argument;
 import api.CompManager;
 import api.Job;
 import api.JobContext;
-import api.Shared;
 import api.Space;
 import api.Task;
 
@@ -37,13 +37,14 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	public final static boolean MODE_MIRROR = false;
 	public final boolean mode;
 	private int jobCount;
+	private String managerHostname;
 
 	public SpaceImpl(boolean mode, String managerHostname)
 			throws RemoteException, MalformedURLException, NotBoundException {
 		this.jobCount = 0;
 		this.mode = mode;
 		this.jobContextMap = new HashMap<Integer, JobContext>();
-		if (mode == MODE_SPACE) {
+		if (mode == this.MODE_SPACE) {
 			for (int i = 0; i < MAX_JOB_NO; i++)
 				this.jobContextMap.put(i, new JobContext(this));
 		}
@@ -111,20 +112,15 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	}
 
 	@Override
-	public <T> T takeFinalResult(int jobId) throws RemoteException, InterruptedException {
-		return this.jobContextMap.get(jobId).takeFinalResult();
+	public <T> T take(int jobId) throws RemoteException, InterruptedException {
+		return this.jobContextMap.get(jobId).take();
 	}
+
 	@Override
-	public <T> T takeIntermediateResult(int jobId) throws RemoteException, InterruptedException {
-		return this.jobContextMap.get(jobId).takeIntermediateResult();
-	}
-	
-	@Override
-	public <T> void setupFinalResult(boolean isFinal, T result, int jobId) throws RemoteException {
+	public <T> void setupResult(T result, int jobId) throws RemoteException {
 		JobContext jobContext = this.jobContextMap.get(jobId);
-		jobContext.setupFinalResult(result);
+		jobContext.setupResult(result);
 		compManager.releaseComputer(jobContext.computerList);
-		jobContext.computerList.clear();
 	}
 
 	@Override
@@ -143,7 +139,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 
 	@Override
 	public <T> void clearShadow(Task<T> task, int jobId) throws RemoteException {
-		this.jobContextMap.get(jobId).clearShadow(task.taskId, this.mode);
+		this.jobContextMap.get(jobId).clearShadow(task, task.taskId, this.mode);
 	}
 
 	@Override
@@ -157,7 +153,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	}
 
 	@Override
-	synchronized public void putShared(Shared shared, int jobId)
+	synchronized public void putShared(Double shared, int jobId)
 			throws RemoteException {
 		this.jobContextMap.get(jobId).putShared(shared);
 	}
@@ -218,25 +214,12 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		this.jobContextMap.put(jobId, jobContext);
 	}
 
-	public void removeComputerRequest(Computer computer){
-		try {
-			this.compManager.removeComputer(computer);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void removeComputerRequest(Computer computer) throws RemoteException {
+		this.compManager.removeComputer(computer);
 	}
 	
 	@Override
 	public void resumeJob(int jobId) throws RemoteException {
 		this.jobContextMap.get(jobId).resumeJob(this);
 	}
-
-	@Override
-	public void synchronizeFinalResult(int jobId) throws RemoteException {
-		JobContext jobContext = this.jobContextMap.get(jobId);
-		jobContext.putShared();
-		jobContext.clearJobContext();
-	}
 }
-

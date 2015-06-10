@@ -1,5 +1,7 @@
 package clients;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -8,9 +10,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 
 import api.Job;
 import api.Space;
+import api.Task;
 /**
  *
  * @author Mingrui Lyu
@@ -22,10 +27,8 @@ public class Client<T> extends JFrame {
 	private long clientStartTime;
 	protected Space space;
 	protected Space mirrorSpace;
-	protected int jobId;
+	private int jobId;
 	private int compNum;
-	private Boolean finalFlag;
-	private DisplayThread displayThread;
 	public Client(final String title, final String domainName, final int compNum) 
 			throws RemoteException, NotBoundException,
 			MalformedURLException {
@@ -36,36 +39,27 @@ public class Client<T> extends JFrame {
 				+ Space.SERVICE_NAME;
 		this.space = (Space) Naming.lookup(url);
 		this.compNum = compNum;
-		this.finalFlag = new Boolean(false);
 	}
 
-	public void begin(DisplayThread displayThread) {
+	public void begin() {
 		clientStartTime = System.nanoTime();
-
-		this.displayThread = displayThread;
-		displayThread.setFinalFlag(this.finalFlag);
-		displayThread.setJFrame(this);
-		displayThread.setJobId(jobId);
-		displayThread.setSpace(space);
-		displayThread.start();
 	}
 
-	public void end() {		
-		this.displayThread.setFinalFlag(new Boolean(true));
+	public void end() {
 		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
 				"Client time: {0} ms.",
 				(System.nanoTime() - clientStartTime) / 1000000);
 	}
 
-/*	public void add(final JLabel jLabel) {
+	public void add(final JLabel jLabel) {
 		final Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(new JScrollPane(jLabel), BorderLayout.CENTER);
 		pack();
 		setVisible(true);
-	}*/
-	
-	public T runJob(Job<T> job, DisplayThread displayThread){
+	}
+
+	public T runJob(Job<T> job){
 		final long taskStartTime = System.nanoTime();
 		T value = null;
 		try {
@@ -77,25 +71,17 @@ public class Client<T> extends JFrame {
 			}
 			System.out.println("Space prepare job "+this.jobId);
 			this.space.startJob(this.jobId);
-			
-			this.begin(displayThread);
-			value = this.space.takeFinalResult(this.jobId);
-			this.end();
-			System.out.println("end");
-			this.space.synchronizeFinalResult(this.jobId);
+			value = this.space.take(this.jobId);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
 			this.space = this.mirrorSpace;
 			try {
-				Long start = System.currentTimeMillis();			
-				begin(new DisplayThread());
+				Long start = System.currentTimeMillis();
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
 				System.out.println("Resuming jobs: " + (end-start));
-				value = this.space.takeFinalResult(this.jobId);
-				this.end();
-				this.space.synchronizeFinalResult(this.jobId);
+				value = this.space.take(this.jobId);
 			} catch (RemoteException | InterruptedException e1) {
 				e1.printStackTrace();
 			}

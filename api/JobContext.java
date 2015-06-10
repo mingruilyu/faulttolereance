@@ -22,10 +22,9 @@ public class JobContext implements Serializable {
 	public final Map<Long, Task> waitingQueue;
 	public final Map<Long, Task> shadow;
 	public final BlockingQueue resultQueue;
-	public final BlockingQueue<Shared> intermediateQueue;
 	private long taskCounter;
 	public final List<Computer> computerList;
-	private Shared shared;
+	private Double shared;
 	private Job job;
 	private int jobId;
 	private Lock lock;
@@ -36,15 +35,15 @@ public class JobContext implements Serializable {
 		this.readyQueue = new LinkedBlockingDeque<Task>();
 		this.waitingQueue = Collections
 				.synchronizedMap(new HashMap<Long, Task>());
-		this.resultQueue = new LinkedBlockingQueue<Shared>();
-		this.intermediateQueue = new LinkedBlockingQueue<Shared>();
-		// this.shadow = Collections.synchronizedMap(new HashMap<Long, Task>());
+		this.resultQueue = new LinkedBlockingQueue<Task>();
+//		this.shadow = Collections.synchronizedMap(new HashMap<Long, Task>());
 		this.shadow = new ConcurrentHashMap<Long, Task>();
-		this.shared = null;
+		this.shared = (double) 100000;
 		this.taskCounter = 0;
 		this.lock = new Lock();
 	}
 
+	
 	public void setJob(Job job) {
 		this.readyQueue.clear();
 		this.waitingQueue.clear();
@@ -55,11 +54,10 @@ public class JobContext implements Serializable {
 
 	public void addComputer(Computer computer, SpaceImpl space, int jobId) {
 		this.jobId = jobId;
-		synchronized (this.computerList) {
+		synchronized(this.computerList) {
 			this.computerList.add(computer);
 		}
-		ComputerProxy computerProxy = new ComputerProxy(space, computer,
-				this.jobId, this.lock);
+		ComputerProxy computerProxy = new ComputerProxy(space, computer, this.jobId, this.lock);
 		computerProxy.startWorker();
 	}
 
@@ -89,8 +87,7 @@ public class JobContext implements Serializable {
 
 	public <T> void insertArg(Argument<T> arg, long id, int slotIndex) {
 		Task task = this.waitingQueue.get(id);
-		if (task == null)
-			return;
+		if(task == null) return;
 		synchronized (task) {
 			task.insertArg(arg, slotIndex);
 			if (task.isReady()) {
@@ -100,15 +97,11 @@ public class JobContext implements Serializable {
 		}
 	}
 
-	public <T> T takeFinalResult() throws InterruptedException {
+	public <T> T take() throws InterruptedException {
 		return (T) this.resultQueue.take();
 	}
 
-	public <T> T takeIntermediateResult() throws InterruptedException {
-		return (T) this.intermediateQueue.take();
-	}
-
-	public <T> void setupFinalResult(T result) {
+	public <T> void setupResult(T result) {
 		try {
 			this.resultQueue.put(result);
 		} catch (InterruptedException e) {
@@ -122,11 +115,13 @@ public class JobContext implements Serializable {
 
 	public <T> void suspendTask(Task<T> task, long taskId, boolean mode) {
 		this.waitingQueue.put(taskId, task);
+//		if (mode == SpaceImpl.MODE_SPACE)
+//		this.shadow.remove(taskId, task);
 	}
-
-	public <T> void clearShadow(long taskId, boolean mode) {
+	
+	public <T> void clearShadow(Task<T> task, long taskId, boolean mode){
 		if (mode == SpaceImpl.MODE_SPACE)
-			this.shadow.remove(taskId);
+		this.shadow.remove(taskId, task);
 	}
 
 	synchronized public long getTaskId() {
@@ -134,39 +129,12 @@ public class JobContext implements Serializable {
 	}
 
 	public Double getShared() {
-		if (this.shared == null)
-			return Double.MAX_VALUE;
-		return this.shared.shortestDistance;
+		return this.shared;
 	}
 
-	synchronized public void putShared(Shared shared) {
-		if (this.shared == null
-				|| this.shared.shortestDistance > shared.shortestDistance)
+	synchronized public void putShared(Double shared) {
+		if (this.shared > shared)
 			this.shared = shared;
-		try {
-			System.out.println("put to intermediate queue");
-			this.intermediateQueue.put(shared);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	synchronized public void putShared() {
-		System.out.println("Synchronized");
-		try {
-			this.intermediateQueue.put(this.shared);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void clearJobContext() {
-		this.shared = null;
-		this.shadow.clear();
-		this.readyQueue.clear();
-		this.waitingQueue.clear();
-		this.job = null;
-		this.taskCounter = 0;
 	}
 
 	public void removeDuplicate() {
@@ -177,7 +145,7 @@ public class JobContext implements Serializable {
 				this.shadow.remove(task.taskId);
 			// remove the duplicate between waiting queue and shadow
 			Iterator<Long> it = this.shadow.keySet().iterator();
-			while (it.hasNext()) {
+			while(it.hasNext()) {
 				Long key = it.next();
 				if (this.waitingQueue.containsKey(key)) {
 					this.shadow.remove(key);
@@ -188,7 +156,7 @@ public class JobContext implements Serializable {
 	}
 
 	public void resumeJob(SpaceImpl space) {
-		for (Long key : this.shadow.keySet()) {
+		for(Long key:this.shadow.keySet()){
 			try {
 				this.readyQueue.put(this.shadow.get(key));
 			} catch (InterruptedException e) {
@@ -196,8 +164,7 @@ public class JobContext implements Serializable {
 			}
 		}
 		for (Computer computer : this.computerList) {
-			ComputerProxy computerProxy = new ComputerProxy(space, computer,
-					this.jobId, this.lock);
+			ComputerProxy computerProxy = new ComputerProxy(space, computer, this.jobId, this.lock);
 			computerProxy.startWorker();
 		}
 	}
@@ -205,7 +172,6 @@ public class JobContext implements Serializable {
 	class Lock implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		public Lock() {
-		}
+		public Lock() {}
 	}
 }
