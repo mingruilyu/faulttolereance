@@ -43,7 +43,7 @@
 				<arg value = "${computer_manager_domain}"/> 
 				<classpath>
 				<!--<pathelement location = "dist/space.jar"/>-->
-				<pathelement location = "dist/client.jar"/>
+				<pathelement location = "dist/clients.jar"/>
 			</classpath>
 		</java>
 	</target>
@@ -87,8 +87,8 @@
 		<java classname = "system.CompManagerImpl" fork = "true">
 			<jvmarg value = "-Djava.security.policy=policy"/>
 			<classpath>
-				<!--<pathelement location = "dist/computer.jar"/>-->
-				<pathelement location = "dist/client.jar"/>
+				<!--pathelement location = "dist/computer.jar"/-->
+				<pathelement location = "dist/clients.jar"/>
 			</classpath>
 		</java>
 	</target>
