@@ -217,8 +217,13 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		this.jobContextMap.put(jobId, jobContext);
 	}
 
-	public void removeComputerRequest(Computer computer) throws RemoteException {
-		this.compManager.removeComputer(computer);
+	public void removeComputerRequest(Computer computer){
+		try {
+			this.compManager.removeComputer(computer);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
