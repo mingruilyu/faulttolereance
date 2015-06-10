@@ -62,13 +62,11 @@ public class JobContext implements Serializable {
 	}
 
 	public <T> Task<T> fetchTask(boolean mode) throws InterruptedException {
-		synchronized (this.readyQueue) {
+		synchronized (readyQueue) {
 			if (!this.readyQueue.isEmpty()) {
-				Task<T> task = this.readyQueue.getLast(); 
-				synchronized(this.shadow) {
-					if (mode == SpaceImpl.MODE_SPACE)
-						this.shadow.put(task.taskId, task);
-				}
+				Task<T> task = this.readyQueue.getLast();
+				if (mode == SpaceImpl.MODE_SPACE)
+					this.shadow.put(task.taskId, task);
 				return this.readyQueue.takeLast();
 			}
 			return null;
@@ -78,9 +76,7 @@ public class JobContext implements Serializable {
 
 	public <T> void issueTask(Task<T> task) {
 		try {
-			synchronized(this.readyQueue) {
-				this.readyQueue.put(task);
-			}
+			this.readyQueue.put(task);
 			synchronized (lock) {
 				this.lock.notifyAll();
 			}
@@ -95,9 +91,7 @@ public class JobContext implements Serializable {
 		synchronized (task) {
 			task.insertArg(arg, slotIndex);
 			if (task.isReady()) {
-				synchronized(this.waitingQueue) {
-					this.waitingQueue.remove(id);
-				}
+				this.waitingQueue.remove(id);
 				this.issueTask(task);
 			}
 		}
@@ -120,19 +114,14 @@ public class JobContext implements Serializable {
 	}
 
 	public <T> void suspendTask(Task<T> task, long taskId, boolean mode) {
-		synchronized(this.waitingQueue) {
-			this.waitingQueue.put(taskId, task);
-		}
+		this.waitingQueue.put(taskId, task);
 //		if (mode == SpaceImpl.MODE_SPACE)
 //		this.shadow.remove(taskId, task);
 	}
 	
 	public <T> void clearShadow(Task<T> task, long taskId, boolean mode){
-		if (mode == SpaceImpl.MODE_SPACE) {
-			synchronized(this.shadow) {
-				System.out.println(this.shadow.remove(taskId, task));
-			}
-		}
+		if (mode == SpaceImpl.MODE_SPACE)
+			System.out.println(this.shadow.remove(taskId, task));
 		//this.shadow.remove(task.taskId);
 	}
 
