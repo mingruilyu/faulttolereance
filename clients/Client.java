@@ -89,8 +89,8 @@ public class Client<T> extends JFrame {
 			this.space = this.mirrorSpace;
 			try {
 				Long start = System.currentTimeMillis();
-				this.displayThread.setSpace(this.space);
 				Thread.sleep(500);
+				this.displayThread.setSpace(this.space);
 				this.displayThread.start();
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
