@@ -7,7 +7,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,14 +37,13 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	public final static boolean MODE_MIRROR = false;
 	public final boolean mode;
 	private int jobCount;
-	private String managerHostname;
 
 	public SpaceImpl(boolean mode, String managerHostname)
 			throws RemoteException, MalformedURLException, NotBoundException {
 		this.jobCount = 0;
 		this.mode = mode;
 		this.jobContextMap = new HashMap<Integer, JobContext>();
-		if (mode == this.MODE_SPACE) {
+		if (mode == MODE_SPACE) {
 			for (int i = 0; i < MAX_JOB_NO; i++)
 				this.jobContextMap.put(i, new JobContext(this));
 		}
@@ -120,6 +118,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	public <T> T takeIntermediateResult(int jobId) throws RemoteException, InterruptedException {
 		return this.jobContextMap.get(jobId).takeIntermediateResult();
 	}
+	
 	@Override
 	public <T> void setupFinalResult(boolean isFinal, T result, int jobId) throws RemoteException {
 		JobContext jobContext = this.jobContextMap.get(jobId);
@@ -225,5 +224,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	@Override
 	public void resumeJob(int jobId) throws RemoteException {
 		this.jobContextMap.get(jobId).resumeJob(this);
+	}
+
+	@Override
+	public void synchronizeFinalResult(int jobId) throws RemoteException {
+		this.jobContextMap.get(jobId).putShared();
 	}
 }

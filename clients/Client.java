@@ -51,19 +51,20 @@ public class Client<T> extends JFrame {
 		displayThread.start();
 	}
 
-	public void end() {
+	public void end() {		
+		this.finalFlag = true;		//set flag
 		Logger.getLogger(Client.class.getCanonicalName()).log(Level.INFO,
 				"Client time: {0} ms.",
 				(System.nanoTime() - clientStartTime) / 1000000);
 	}
 
-	public void add(final JLabel jLabel) {
+/*	public void add(final JLabel jLabel) {
 		final Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(new JScrollPane(jLabel), BorderLayout.CENTER);
 		pack();
 		setVisible(true);
-	}
+	}*/
 	
 	public T runJob(Job<T> job, DisplayThread displayThread){
 		final long taskStartTime = System.nanoTime();
@@ -81,6 +82,7 @@ public class Client<T> extends JFrame {
 			this.begin(new DisplayThread());
 			value = this.space.takeFinalResult(this.jobId);
 			this.end();
+			this.space.synchronizeFinalResult(this.jobId);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -92,6 +94,7 @@ public class Client<T> extends JFrame {
 				System.out.println("Resuming jobs: " + (end-start));
 				value = this.space.takeFinalResult(this.jobId);
 				this.end();
+				this.space.synchronizeFinalResult(this.jobId);
 			} catch (RemoteException | InterruptedException e1) {
 				e1.printStackTrace();
 			}

@@ -20,15 +20,11 @@ import api.Space;
 
 public class DisplayThread extends Thread {
 	public static final int NUM_PIXALS = 600;
-	protected final Container container;
+	protected Container container;
 	protected int jobId;
 	protected JFrame jFrame;
 	protected Space space;
 	protected Boolean finalFlag;
-	public DisplayThread() {
-		this.container = jFrame.getContentPane();
-		this.container.setLayout(new BorderLayout());
-	}
 	
 	public void setJobId(int jobId) {
 		this.jobId = jobId;
@@ -44,6 +40,8 @@ public class DisplayThread extends Thread {
 	
 	public void setJFrame(JFrame jframe) {
 		this.jFrame = jframe;
+		this.container = jFrame.getContentPane();
+		this.container.setLayout(new BorderLayout());
 	}
 	
 }

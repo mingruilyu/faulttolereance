@@ -105,6 +105,8 @@ public interface Space extends Remote {
 	 */
 	<T> void setupFinalResult(boolean isFinal, T result, int jobId) throws RemoteException, InterruptedException;
 
+	
+	void synchronizeFinalResult(int jobId) throws RemoteException;
 	/**
 	 * Put the root task into the task queue.
 	 * @param job the root task

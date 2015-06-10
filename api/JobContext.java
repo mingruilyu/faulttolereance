@@ -13,8 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
 import space.SpaceImpl;
 import system.Computer;
 import system.ComputerProxy;
@@ -124,6 +122,14 @@ public class JobContext implements Serializable {
 			e.printStackTrace();
 		}
 	}
+	
+	public void setupIntermediateResult() {
+		try {
+			this.intermediateQueue.put(shared);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public <T> void startJob() {
 		this.issueTask(this.job.toTask(this.taskCounter++));
@@ -145,6 +151,7 @@ public class JobContext implements Serializable {
 	}
 
 	public Double getShared() {
+		if(this.shared == null) return Double.MAX_VALUE;
 		return this.shared.shortestDistance;
 	}
 
@@ -152,7 +159,15 @@ public class JobContext implements Serializable {
 		if (this.shared == null || this.shared.shortestDistance > shared.shortestDistance)
 			this.shared = shared;
 		try {
-			this.resultQueue.put(shared);
+			this.intermediateQueue.put(shared);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	synchronized public void putShared(){
+		try {
+			this.intermediateQueue.put(this.shared);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
