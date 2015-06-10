@@ -33,7 +33,7 @@ public class CheckPointTimer extends Timer{
 					synchronized(this.jobContext.shadow) {
 						try {
 							this.mirror.checkPoint(this.jobContext, jobId);
-//							System.out.println("Checkpoint!");
+							System.out.println("Checkpoint!");
 						} catch (RemoteException e) {
 							e.printStackTrace();
 						}
