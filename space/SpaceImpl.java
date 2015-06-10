@@ -18,6 +18,7 @@ import api.Argument;
 import api.CompManager;
 import api.Job;
 import api.JobContext;
+import api.Shared;
 import api.Space;
 import api.Task;
 
@@ -112,14 +113,17 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	}
 
 	@Override
-	public <T> T take(int jobId) throws RemoteException, InterruptedException {
-		return this.jobContextMap.get(jobId).take();
+	public <T> T takeFinalResult(int jobId) throws RemoteException, InterruptedException {
+		return this.jobContextMap.get(jobId).takeFinalResult();
 	}
-
 	@Override
-	public <T> void setupResult(T result, int jobId) throws RemoteException {
+	public <T> T takeIntermediateResult(int jobId) throws RemoteException, InterruptedException {
+		return this.jobContextMap.get(jobId).takeIntermediateResult();
+	}
+	@Override
+	public <T> void setupFinalResult(boolean isFinal, T result, int jobId) throws RemoteException {
 		JobContext jobContext = this.jobContextMap.get(jobId);
-		jobContext.setupResult(result);
+		jobContext.setupFinalResult(result);
 		compManager.releaseComputer(jobContext.computerList);
 	}
 
@@ -153,7 +157,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	}
 
 	@Override
-	synchronized public void putShared(Double shared, int jobId)
+	synchronized public void putShared(Shared shared, int jobId)
 			throws RemoteException {
 		this.jobContextMap.get(jobId).putShared(shared);
 	}

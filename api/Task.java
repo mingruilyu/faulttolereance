@@ -103,7 +103,7 @@ public abstract class Task<V> implements Serializable {
 	public void feedback(Argument result, Space space) throws RemoteException {
 		if (this.parentId == NO_PARENT)
 			try {
-				space.setupResult(result.getArg(), this.jobId);
+				space.setupFinalResult(true, result.getArg(), this.jobId);
 				System.out.println("Critical path Time: " + result.getTime()
 						/ 1000);
 				System.out.println("T1: " + t1 / 1000);

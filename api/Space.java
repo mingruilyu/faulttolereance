@@ -24,8 +24,9 @@ public interface Space extends Remote {
 	 *             occupied, and the thread is interrupted, either before or
 	 *             during the activity.
 	 */
-	<T> T take(int jobId) throws RemoteException, InterruptedException;
-
+	<T> T takeFinalResult(int jobId) throws RemoteException, InterruptedException;
+	
+	<T> T takeIntermediateResult(int jobId) throws RemoteException, InterruptedException;
 	/**
 	 * Register the computer to the space.
 	 * 
@@ -102,7 +103,7 @@ public interface Space extends Remote {
 	 *             occupied, and the thread is interrupted, either before or
 	 *             during the activity.
 	 */
-	<T> void setupResult(T result, int jobId) throws RemoteException, InterruptedException;
+	<T> void setupFinalResult(boolean isFinal, T result, int jobId) throws RemoteException, InterruptedException;
 
 	/**
 	 * Put the root task into the task queue.
@@ -121,7 +122,7 @@ public interface Space extends Remote {
 	
 	public Double getShared(int jobId) throws RemoteException;
 	
-	public void putShared(Double shared, int jobId) throws RemoteException;
+	public void putShared(Shared shared, int jobId) throws RemoteException;
 	
 	public Space getMirror() throws RemoteException;
 	

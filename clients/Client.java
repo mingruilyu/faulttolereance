@@ -27,8 +27,9 @@ public class Client<T> extends JFrame {
 	private long clientStartTime;
 	protected Space space;
 	protected Space mirrorSpace;
-	private int jobId;
+	protected int jobId;
 	private int compNum;
+	private Boolean finalFlag;
 	public Client(final String title, final String domainName, final int compNum) 
 			throws RemoteException, NotBoundException,
 			MalformedURLException {
@@ -41,8 +42,13 @@ public class Client<T> extends JFrame {
 		this.compNum = compNum;
 	}
 
-	public void begin() {
+	public void begin(DisplayThread displayThread) {
 		clientStartTime = System.nanoTime();
+		displayThread.setFinalFlag(finalFlag);
+		displayThread.setJFrame(this);
+		displayThread.setJobId(jobId);
+		displayThread.setSpace(space);
+		displayThread.start();
 	}
 
 	public void end() {
@@ -58,8 +64,8 @@ public class Client<T> extends JFrame {
 		pack();
 		setVisible(true);
 	}
-
-	public T runJob(Job<T> job){
+	
+	public T runJob(Job<T> job, DisplayThread displayThread){
 		final long taskStartTime = System.nanoTime();
 		T value = null;
 		try {
@@ -71,7 +77,10 @@ public class Client<T> extends JFrame {
 			}
 			System.out.println("Space prepare job "+this.jobId);
 			this.space.startJob(this.jobId);
-			value = this.space.take(this.jobId);
+			
+			this.begin(new DisplayThread());
+			value = this.space.takeFinalResult(this.jobId);
+			this.end();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -81,7 +90,8 @@ public class Client<T> extends JFrame {
 				this.space.resumeJob(this.jobId);
 				Long end = System.currentTimeMillis();
 				System.out.println("Resuming jobs: " + (end-start));
-				value = this.space.take(this.jobId);
+				value = this.space.takeFinalResult(this.jobId);
+				this.end();
 			} catch (RemoteException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -91,4 +101,6 @@ public class Client<T> extends JFrame {
 		System.out.println("Job runtime = " + taskRunTime);
 		return value;
 	}
+	
+	
 }

@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import space.SpaceImpl;
 import system.Computer;
 import system.ComputerProxy;
@@ -22,9 +24,10 @@ public class JobContext implements Serializable {
 	public final Map<Long, Task> waitingQueue;
 	public final Map<Long, Task> shadow;
 	public final BlockingQueue resultQueue;
+	public final BlockingQueue<Shared> intermediateQueue;
 	private long taskCounter;
 	public final List<Computer> computerList;
-	private Double shared;
+	private Shared shared;
 	private Job job;
 	private int jobId;
 	private Lock lock;
@@ -35,10 +38,11 @@ public class JobContext implements Serializable {
 		this.readyQueue = new LinkedBlockingDeque<Task>();
 		this.waitingQueue = Collections
 				.synchronizedMap(new HashMap<Long, Task>());
-		this.resultQueue = new LinkedBlockingQueue<Task>();
+		this.resultQueue = new LinkedBlockingQueue<Shared>();
+		this.intermediateQueue = new LinkedBlockingQueue<Shared>();
 //		this.shadow = Collections.synchronizedMap(new HashMap<Long, Task>());
 		this.shadow = new ConcurrentHashMap<Long, Task>();
-		this.shared = (double) 100000;
+		this.shared = null;
 		this.taskCounter = 0;
 		this.lock = new Lock();
 	}
@@ -97,13 +101,25 @@ public class JobContext implements Serializable {
 		}
 	}
 
-	public <T> T take() throws InterruptedException {
+	public <T> T takeFinalResult() throws InterruptedException {
+		return (T) this.resultQueue.take();
+	}
+	
+	public <T> T takeIntermediateResult() throws InterruptedException {
 		return (T) this.resultQueue.take();
 	}
 
-	public <T> void setupResult(T result) {
+	public <T> void setupFinalResult(T result) {
 		try {
 			this.resultQueue.put(result);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void setupIntermediateResult(Shared shared) {
+		try {
+			this.intermediateQueue.put(shared);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -129,12 +145,17 @@ public class JobContext implements Serializable {
 	}
 
 	public Double getShared() {
-		return this.shared;
+		return this.shared.shortestDistance;
 	}
 
-	synchronized public void putShared(Double shared) {
-		if (this.shared > shared)
+	synchronized public void putShared(Shared shared){
+		if (this.shared == null || this.shared.shortestDistance > shared.shortestDistance)
 			this.shared = shared;
+		try {
+			this.resultQueue.put(shared);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void removeDuplicate() {

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import space.SpaceImpl;
+import api.Shared;
 import api.Space;
 import api.Task;
 
@@ -308,7 +309,7 @@ public class TaskEuclideanTsp extends Task<List<Integer>> implements
 			if(result != null) {
 				double minCost = calculateCost(result);
 				if(minCost < upperbound) 
-					space.putShared(minCost, this.jobId);
+					space.putShared(new Shared(minCost, result), this.jobId);
 			}
 			this.feedback(tspArgument, space);
 		} else {
