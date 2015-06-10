@@ -30,7 +30,9 @@ public class TSPDisplayThread extends DisplayThread{
 				System.out.println("Display thread return!");
 				try {
 					System.out.println("Before wait");
-					wait();
+					synchronized (this) {
+						wait();
+					}
 					System.out.println("After wait");
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
