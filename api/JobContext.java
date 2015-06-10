@@ -121,8 +121,8 @@ public class JobContext implements Serializable {
 	
 	public <T> void clearShadow(Task<T> task, long taskId, boolean mode){
 		if (mode == SpaceImpl.MODE_SPACE)
-			System.out.println(this.shadow.remove(taskId, task));
-		//this.shadow.remove(task.taskId);
+			//System.out.println(this.shadow.remove(taskId, task));
+		this.shadow.remove(task.taskId);
 	}
 
 	synchronized public long getTaskId() {
@@ -146,14 +146,14 @@ public class JobContext implements Serializable {
 			if (this.shadow.containsKey(task.taskId))
 				this.shadow.remove(task.taskId);
 			// remove the duplicate between waiting queue and shadow
-			Iterator<Long> it = this.shadow.keySet().iterator();
+			/*Iterator<Long> it = this.shadow.keySet().iterator();
 			while(it.hasNext()) {
 				Long key = it.next();
 				if (this.waitingQueue.containsKey(key)) {
 					this.shadow.remove(key);
 					break;
 				}
-			}
+			}*/
 		}
 	}
 
